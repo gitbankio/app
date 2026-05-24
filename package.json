@@ -1,0 +1,9 @@
+{
+  "name": "gitbank-app",
+  "private": true,
+  "packageManager": "pnpm@10.10.0",
+  "scripts": {
+    "typecheck": "pnpm --filter @workspace/gitbank run typecheck",
+    "dev": "pnpm --filter @workspace/gitbank run dev"
+  }
+}
