@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Gitbank x402 Announcement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width: 1200px;
+  height: 675px;
+  background: #F0EEE9;
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+  position: relative;
+}
+
+.bg-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #C8C4BB 1px, transparent 1px);
+  background-size: 20px 20px;
+  opacity: 0.6;
+}
+
+.top-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: repeating-linear-gradient(90deg,
+    #1a1a2e 0px, #1a1a2e 24px,
+    #6EE7B7 24px, #6EE7B7 30px,
+    #1a1a2e 30px, #1a1a2e 54px,
+    #93C5FD 54px, #93C5FD 60px
+  );
+}
+
+.layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 72px 1fr 52px;
+  height: 675px;
+  padding: 0 32px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #DEDAD3;
+}
+
+.brand { display: flex; align-items: center; gap: 14px; }
+
+.logo-pixel {
+  width: 40px; height: 40px;
+  background: #1a1a2e;
+  display: grid;
+  grid-template-columns: repeat(5,1fr);
+  grid-template-rows: repeat(5,1fr);
+  gap: 2px;
+  padding: 5px;
+  flex-shrink: 0;
+}
+.lp { background: #F0EEE9; }
+.lo { background: #6EE7B7; }
+
+.brand-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: #1a1a2e;
+  line-height: 1;
+}
+.brand-tag {
+  font-family: 'VT323', monospace;
+  font-size: 19px;
+  color: #6b7280;
+  letter-spacing: 1px;
+  margin-top: 5px;
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1a2e;
+  padding: 0 18px;
+  height: 40px;
+}
+.badge-blink { width: 8px; height: 8px; background: #6EE7B7; }
+.badge-text {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #6EE7B7;
+  letter-spacing: 1px;
+}
+
+/* MAIN */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  gap: 0 28px;
+  padding: 20px 0;
+  align-items: stretch;
+}
+
+.divider {
+  background: repeating-linear-gradient(to bottom,
+    #DEDAD3 0, #DEDAD3 8px, transparent 8px, transparent 16px);
+}
+
+/* LEFT */
+.left { display: flex; flex-direction: column; gap: 12px; }
+
+.sec-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  color: #9ca3af;
+  letter-spacing: 3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec-label::before {
+  content: '';
+  display: inline-block; width: 8px; height: 8px;
+  background: currentColor;
+}
+
+.headline {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #1a1a2e;
+  line-height: 2;
+}
+
+.tagline {
+  font-size: 12.5px;
+  color: #4b5563;
+  line-height: 1.75;
+}
+
+.code-panel {
+  background: #1a1a2e;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.code-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.ch-dot { width: 8px; height: 8px; background: #6EE7B7; }
+.ch-dot.d2 { background: #FCD34D; }
+.ch-dot.d3 { background: #FC8181; }
+.ch-title { font-size: 10.5px; color: #6b7280; margin-left: 4px; }
+
+.code-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  flex: 1;
+  justify-content: center;
+}
+
+.cr { display: flex; align-items: baseline; gap: 10px; font-size: 12px; line-height: 1.4; }
+.ck { color: #6b7280; flex-shrink: 0; min-width: 64px; }
+.cv { color: #F0EEE9; }
+.cv.g { color: #6EE7B7; }
+.cv.y { color: #FCD34D; }
+.cv.b { color: #93C5FD; }
+.cv.p { color: #C4B5FD; }
+
+/* RIGHT */
+.right { display: flex; flex-direction: column; gap: 12px; }
+
+.ok-box {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  background: #ECFDF5;
+  border: 3px solid #6EE7B7;
+}
+.ok-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 28px;
+  color: #059669;
+  line-height: 1;
+}
+.ok-status {
+  font-family: 'VT323', monospace;
+  font-size: 30px;
+  color: #059669;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+.ok-sub { font-size: 11px; color: #059669; opacity: 0.7; margin-top: 4px; }
+
+.detail-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.dr {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 12px; line-height: 1.5;
+  padding: 9px 13px;
+  background: #FFFFFF;
+  border: 1px solid #DEDAD3;
+}
+.dk { color: #9ca3af; min-width: 90px; flex-shrink: 0; }
+.dv { color: #1a1a2e; font-weight: 600; }
+.dv.sm { font-size: 11px; word-break: break-all; }
+
+.proof {
+  background: #1a1a2e;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.proof-header {
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 6px;
+  color: #6b7280;
+  letter-spacing: 3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.proof-header::before {
+  content: '';
+  display: inline-block; width: 6px; height: 6px;
+  background: #6EE7B7;
+}
+
+.proof-body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+.pr { display: flex; align-items: flex-start; gap: 10px; font-size: 11.5px; line-height: 1.5; }
+.pk { color: #6b7280; min-width: 52px; flex-shrink: 0; }
+.pv { color: #F0EEE9; word-break: break-all; }
+.pv.a { color: #6EE7B7; font-weight: 700; }
+
+/* FOOTER */
+.footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 2px solid #DEDAD3;
+}
+
+.footer-left { display: flex; align-items: center; gap: 20px; }
+
+.f-chip { display: flex; align-items: center; gap: 7px; font-size: 11px; color: #4b5563; }
+.f-dot {
+  width: 10px; height: 10px; background: #3b82f6;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  flex-shrink: 0;
+}
+.f-sep { color: #DEDAD3; font-size: 18px; }
+
+.f-gitbank {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #1a1a2e;
+  opacity: 0.35;
+}
+
+/* corner pixel deco */
+.deco {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(4,10px);
+  grid-template-rows: repeat(4,10px);
+  gap: 2px;
+  opacity: 0.13;
+}
+.deco-tl { top: 14px; left: 14px; }
+.deco-br { bottom: 14px; right: 14px; }
+.dp { width:10px; height:10px; }
+.dp.f { background: #1a1a2e; }
+</style>
+</head>
+<body>
+<div class="bg-dots"></div>
+<div class="top-bar"></div>
+
+<div class="deco deco-tl">
+  <div class="dp f"></div><div class="dp f"></div><div class="dp f"></div><div class="dp"></div>
+  <div class="dp f"></div><div class="dp"></div><div class="dp"></div><div class="dp"></div>
+  <div class="dp f"></div><div class="dp"></div><div class="dp"></div><div class="dp"></div>
+  <div class="dp"></div><div class="dp"></div><div class="dp"></div><div class="dp"></div>
+</div>
+<div class="deco deco-br">
+  <div class="dp"></div><div class="dp"></div><div class="dp"></div><div class="dp"></div>
+  <div class="dp"></div><div class="dp"></div><div class="dp"></div><div class="dp f"></div>
+  <div class="dp"></div><div class="dp"></div><div class="dp"></div><div class="dp f"></div>
+  <div class="dp"></div><div class="dp f"></div><div class="dp f"></div><div class="dp f"></div>
+</div>
+
+<div class="layout">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <img src="/gitbank-cat.png" alt="Gitbank" style="width:44px;height:44px;border-radius:10px;flex-shrink:0;object-fit:cover;">
+      <div>
+        <div class="brand-name">GITBANK</div>
+        <div class="brand-tag">x402 v2 &nbsp;//&nbsp; BASE MAINNET</div>
+      </div>
+    </div>
+    <div class="badge">
+      <div class="badge-blink"></div>
+      <div class="badge-text">FIRST REAL PAYMENT TO THIRD-PARTY API</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- LEFT -->
+    <div class="left">
+      <div class="sec-label">REQUEST SENT</div>
+      <div class="headline">We paid an API.<br>On-chain. No account.<br>No API key.</div>
+      <div class="tagline">
+        GitVault on Base Mainnet paid Exa AI<br>
+        directly via x402 v2. One bot command.<br>
+        One on-chain USDC transfer. HTTP 200 back.
+      </div>
+      <div class="code-panel">
+        <div class="code-header">
+          <div class="ch-dot"></div><div class="ch-dot d2"></div><div class="ch-dot d3"></div>
+          <span class="ch-title">POST https://api.exa.ai/search</span>
+        </div>
+        <div class="code-body">
+          <div class="cr"><span class="ck">method</span><span class="cv y">POST</span></div>
+          <div class="cr"><span class="ck">body</span><span class="cv">{"query":"gitbank","numResults":3}</span></div>
+          <div class="cr"><span class="ck">header</span><span class="cv p">PAYMENT-SIGNATURE</span></div>
+          <div class="cr"><span class="ck">scheme</span><span class="cv">x402 v2 &nbsp;// EIP-3009 signed</span></div>
+          <div class="cr"><span class="ck">network</span><span class="cv b">eip155:8453 &nbsp;// Base Mainnet</span></div>
+          <div class="cr"><span class="ck">token</span><span class="cv g">USDC &nbsp;// 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div class="sec-label">RESPONSE FROM EXA</div>
+      <div class="ok-box">
+        <div class="ok-num">200</div>
+        <div>
+          <div class="ok-status">OK</div>
+          <div class="ok-sub">Exa returned real search results</div>
+        </div>
+      </div>
+      <div class="detail-rows">
+        <div class="dr">
+          <span class="dk">content</span>
+          <span class="dv">3 real web search results for "gitbank"</span>
+        </div>
+        <div class="dr">
+          <span class="dk">requestId</span>
+          <span class="dv sm">df0e508eea0fbeae30bd120ba24c6ef1</span>
+        </div>
+      </div>
+      <div class="proof">
+        <div class="proof-header">ON-CHAIN PROOF &nbsp;// BASE MAINNET</div>
+        <div class="proof-body">
+          <div class="pr">
+            <span class="pk">paid</span>
+            <span class="pv a">0.007 USDC &nbsp;(7,000 atomic)</span>
+          </div>
+          <div class="pr">
+            <span class="pk">to</span>
+            <span class="pv">0x6d6E695b09861467c7d462f5AAF31cF3540B9192</span>
+          </div>
+          <div class="pr">
+            <span class="pk">chain</span>
+            <span class="pv">Base Mainnet &nbsp;// chainId 8453</span>
+          </div>
+          <div class="pr">
+            <span class="pk">tx</span>
+            <span class="pv a">0x82c37612c6f68c69c33ce95d3662e0a4<br>&nbsp;&nbsp;&nbsp;&nbsp;c582e9c992512b2787ae7ccfa4b02ace</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      <div class="f-chip">
+        <div class="f-dot"></div>
+        Base Mainnet &nbsp;// chainId 8453
+      </div>
+      <span class="f-sep">|</span>
+      <div class="f-chip">No API key. No account. Gas paid by Gitbank Relayer. User held zero ETH.</div>
+    </div>
+    <div class="f-gitbank">gitbank.io</div>
+  </div>
+</div>
+</body>
+</html>

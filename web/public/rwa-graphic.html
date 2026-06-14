@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gitbank RWA — gitStock Internal Build Update</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100vw; height: 100vh; overflow: hidden;
+    background: #e8eaf0;
+    position: relative;
+  }
+  .canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 2800px; height: 1575px;
+    overflow: hidden;
+    background: #f8f9fc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111;
+    padding: 60px 90px 48px;
+    display: flex; flex-direction: column;
+    transform-origin: top left;
+  }
+
+  .header { margin-bottom: 32px; flex-shrink: 0; display: flex; align-items: center; gap: 60px; }
+  .header-text { flex: 1; }
+  .header-logos {
+    display: flex; align-items: center; gap: 28px; flex-shrink: 0;
+  }
+  .logo-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .logo-img {
+    width: 140px; height: 140px; object-fit: contain;
+    filter: drop-shadow(0 4px 24px rgba(0,0,0,0.10));
+    border-radius: 32px;
+  }
+  .logo-name {
+    font-size: 18px; font-weight: 700; color: #374151; letter-spacing: 0.04em;
+  }
+  .logo-x {
+    font-size: 48px; font-weight: 300; color: #d1d5db; margin-top: -10px;
+  }
+  .badge-internal {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 20px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 6px 16px; border-radius: 99px;
+    background: #fef3c7; color: #92400e; border: 2px solid #fde68a;
+    margin-bottom: 14px;
+  }
+  .eyebrow {
+    font-size: 22px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #6b7280; margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 62px; font-weight: 800; letter-spacing: -0.03em;
+    color: #0f172a; margin-bottom: 8px; line-height: 1.05;
+  }
+  .subtitle { font-size: 24px; color: #6b7280; font-weight: 400; }
+
+  .badge-live {
+    display: inline-block; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 99px;
+    background: #d1fae5; color: #065f46; margin-bottom: 10px;
+  }
+  .badge-testing {
+    display: inline-block; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 99px;
+    background: #eff6ff; color: #1d4ed8; margin-bottom: 10px;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr 0.95fr;
+    gap: 30px;
+    flex: 1;
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .col-wrap { display: flex; flex-direction: column; min-height: 0; }
+
+  .section-title {
+    font-size: 16px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: #6b7280; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  }
+  .section-title::after { content: ""; flex: 1; height: 2px; background: #e5e7eb; }
+
+  .card {
+    background: #fff; border: 2px solid #e5e7eb;
+    border-radius: 24px; padding: 26px;
+    flex: 1; min-height: 0; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── COL 1: FLOW ── */
+  .flow { display: flex; flex-direction: column; flex: 1; min-height: 0; justify-content: space-between; }
+
+  .flow-node {
+    display: flex; align-items: flex-start; gap: 18px;
+    padding: 18px 20px; border-radius: 18px;
+    border: 2px solid #e5e7eb; background: #f8f9fc;
+  }
+  .flow-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .flow-label {
+    font-size: 14px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .flow-title { font-size: 19px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+  .flow-desc { font-size: 14px; color: #6b7280; line-height: 1.45; }
+  .flow-code {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 14px; background: #f1f5f9; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; padding: 6px 12px; margin-top: 8px;
+    color: #334155; display: inline-block;
+  }
+  .flow-arrow {
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    height: 34px; color: #9ca3af; font-size: 14px; font-weight: 500; gap: 8px;
+  }
+
+  /* ── COL 2: WHAT SHIPPED ── */
+  .shipped-grid { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; }
+  .shipped-item {
+    background: #f8f9fc; border: 2px solid #e5e7eb;
+    border-radius: 18px; padding: 18px 22px; flex: 1;
+    min-height: 0; overflow: hidden;
+  }
+  .item-title { font-size: 19px; font-weight: 700; color: #0f172a; margin-bottom: 5px; }
+  .item-desc { font-size: 14px; color: #6b7280; line-height: 1.45; }
+  .addr {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 13px; color: #2563eb; margin-top: 8px; display: block;
+    background: #eff6ff; border: 1.5px solid #bfdbfe;
+    border-radius: 8px; padding: 6px 10px; letter-spacing: 0.03em;
+  }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; border: 2px solid; }
+  .shipped-icon { margin-bottom: 10px; display: block; }
+
+  /* ── COL 3: STATS + STATUS ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-bottom: 16px; flex-shrink: 0; }
+  .stat-card {
+    background: #f8f9fc; border: 2px solid #e5e7eb;
+    border-radius: 16px; padding: 20px 18px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-num { font-size: 46px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+  .stat-label { font-size: 15px; color: #6b7280; font-weight: 500; }
+  .stat-sub { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+  .status-list { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  .status-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 15px; border-radius: 14px;
+    border: 2px solid #e5e7eb; background: #f8f9fc;
+  }
+  .status-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .status-text { flex: 1; }
+  .status-name { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+  .status-desc { font-size: 13px; color: #6b7280; }
+  .status-badge {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.07em;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 99px; flex-shrink: 0;
+  }
+
+  .market-node {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 2px solid #86efac; border-radius: 18px;
+    padding: 18px 22px; margin-top: 14px; flex-shrink: 0;
+    display: flex; align-items: center; gap: 18px;
+  }
+  .market-icon {
+    width: 56px; height: 56px; background: #fff; border-radius: 14px;
+    border: 2px solid #86efac;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .market-label { font-size: 17px; font-weight: 800; color: #14532d; margin-bottom: 4px; }
+  .market-sub { font-size: 13px; color: #166534; line-height: 1.5; }
+
+  .footer {
+    margin-top: 20px; font-size: 16px; color: #9ca3af;
+    text-align: center; letter-spacing: 0.04em; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas" id="canvas">
+
+<!-- ── PIXEL ART BACKGROUND ── -->
+<div style="position:absolute;top:0;left:0;width:2800px;height:1575px;pointer-events:none;overflow:hidden;">
+<svg width="2800" height="1575" viewBox="0 0 2800 1575" fill="none">
+  <defs>
+    <pattern id="dots" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+      <rect x="23" y="23" width="2" height="2" fill="#9ca3af" opacity="0.35"/>
+    </pattern>
+  </defs>
+  <!-- dot grid -->
+  <rect width="2800" height="1575" fill="url(#dots)"/>
+
+  <!-- ── TOP-LEFT: pixel candlestick chart ── -->
+  <g opacity="0.22" transform="translate(82,18)">
+    <!-- axis -->
+    <rect x="0" y="0" width="4" height="90" fill="#6b7280"/>
+    <rect x="0" y="88" width="140" height="4" fill="#6b7280"/>
+    <!-- candle 1 green -->
+    <rect x="10" y="10" width="4" height="50" fill="#86efac"/>
+    <rect x="14" y="20" width="16" height="30" fill="#22c55e"/>
+    <!-- candle 2 red -->
+    <rect x="38" y="8" width="4" height="56" fill="#fca5a5"/>
+    <rect x="42" y="18" width="16" height="28" fill="#ef4444"/>
+    <!-- candle 3 green -->
+    <rect x="66" y="4" width="4" height="44" fill="#86efac"/>
+    <rect x="70" y="12" width="16" height="24" fill="#22c55e"/>
+    <!-- candle 4 green tall -->
+    <rect x="94" y="2" width="4" height="50" fill="#86efac"/>
+    <rect x="98" y="8" width="16" height="36" fill="#22c55e"/>
+    <!-- candle 5 red -->
+    <rect x="122" y="6" width="4" height="46" fill="#fca5a5"/>
+    <rect x="126" y="14" width="16" height="22" fill="#ef4444"/>
+  </g>
+
+  <!-- ── TOP-RIGHT: pixel blockchain chain ── -->
+  <g opacity="0.2" transform="translate(2350,16)">
+    <!-- block 1 -->
+    <rect x="0" y="0" width="60" height="44" fill="#93c5fd"/>
+    <rect x="6" y="6" width="48" height="32" fill="#dbeafe"/>
+    <rect x="12" y="14" width="36" height="5" fill="#93c5fd"/>
+    <rect x="12" y="23" width="28" height="5" fill="#93c5fd"/>
+    <!-- chain -->
+    <rect x="60" y="18" width="18" height="5" fill="#93c5fd"/>
+    <rect x="66" y="12" width="6" height="18" fill="#93c5fd"/>
+    <!-- block 2 -->
+    <rect x="78" y="0" width="60" height="44" fill="#93c5fd"/>
+    <rect x="84" y="6" width="48" height="32" fill="#dbeafe"/>
+    <rect x="90" y="14" width="36" height="5" fill="#93c5fd"/>
+    <rect x="90" y="23" width="28" height="5" fill="#93c5fd"/>
+    <!-- chain -->
+    <rect x="138" y="18" width="18" height="5" fill="#93c5fd"/>
+    <rect x="144" y="12" width="6" height="18" fill="#93c5fd"/>
+    <!-- block 3 -->
+    <rect x="156" y="0" width="60" height="44" fill="#93c5fd"/>
+    <rect x="162" y="6" width="48" height="32" fill="#dbeafe"/>
+    <rect x="168" y="14" width="36" height="5" fill="#93c5fd"/>
+    <rect x="168" y="23" width="28" height="5" fill="#93c5fd"/>
+    <!-- block 4 (partial) -->
+    <rect x="234" y="0" width="60" height="44" fill="#93c5fd"/>
+    <rect x="240" y="6" width="48" height="32" fill="#dbeafe"/>
+    <rect x="246" y="14" width="36" height="5" fill="#93c5fd"/>
+    <rect x="246" y="23" width="28" height="5" fill="#93c5fd"/>
+  </g>
+
+  <!-- ── LEFT EDGE: pixel network nodes ── -->
+  <g opacity="0.2" transform="translate(14,580)">
+    <!-- nodes -->
+    <circle cx="24" cy="0" r="10" fill="#a78bfa"/>
+    <circle cx="0" cy="60" r="10" fill="#a78bfa"/>
+    <circle cx="48" cy="60" r="10" fill="#a78bfa"/>
+    <circle cx="24" cy="120" r="10" fill="#a78bfa"/>
+    <!-- edges -->
+    <rect x="20" y="10" width="4" height="50" fill="#c4b5fd"/>
+    <rect x="4" y="57" width="40" height="4" fill="#c4b5fd"/>
+    <rect x="20" y="70" width="4" height="50" fill="#c4b5fd"/>
+    <!-- small node accent -->
+    <circle cx="24" cy="0" r="5" fill="#ede9fe"/>
+    <circle cx="0" cy="60" r="5" fill="#ede9fe"/>
+    <circle cx="48" cy="60" r="5" fill="#ede9fe"/>
+    <circle cx="24" cy="120" r="5" fill="#ede9fe"/>
+  </g>
+
+  <!-- ── RIGHT EDGE: pixel coin stack ── -->
+  <g opacity="0.22" transform="translate(2744,540)">
+    <!-- coin 1 (top) -->
+    <rect x="4" y="0" width="32" height="5" fill="#fbbf24"/>
+    <rect x="0" y="5" width="40" height="12" fill="#f59e0b"/>
+    <rect x="4" y="17" width="32" height="5" fill="#fbbf24"/>
+    <!-- coin 2 -->
+    <rect x="4" y="26" width="32" height="5" fill="#fbbf24"/>
+    <rect x="0" y="31" width="40" height="12" fill="#f59e0b"/>
+    <rect x="4" y="43" width="32" height="5" fill="#fbbf24"/>
+    <!-- coin 3 -->
+    <rect x="4" y="52" width="32" height="5" fill="#fbbf24"/>
+    <rect x="0" y="57" width="40" height="12" fill="#f59e0b"/>
+    <rect x="4" y="69" width="32" height="5" fill="#fbbf24"/>
+    <!-- shine -->
+    <rect x="8" y="7" width="10" height="3" fill="#fde68a"/>
+    <rect x="8" y="33" width="10" height="3" fill="#fde68a"/>
+    <rect x="8" y="59" width="10" height="3" fill="#fde68a"/>
+  </g>
+
+  <!-- ── BOTTOM-LEFT: pixel bar chart ── -->
+  <g opacity="0.2" transform="translate(80,1468)">
+    <rect x="0" y="0" width="4" height="80" fill="#6b7280"/>
+    <rect x="0" y="78" width="150" height="4" fill="#6b7280"/>
+    <rect x="10" y="50" width="18" height="30" fill="#60a5fa"/>
+    <rect x="34" y="30" width="18" height="50" fill="#3b82f6"/>
+    <rect x="58" y="10" width="18" height="70" fill="#2563eb"/>
+    <rect x="82" y="20" width="18" height="60" fill="#3b82f6"/>
+    <rect x="106" y="40" width="18" height="40" fill="#60a5fa"/>
+    <rect x="130" y="15" width="18" height="65" fill="#2563eb"/>
+  </g>
+
+  <!-- ── BOTTOM-RIGHT: pixel sparkle cluster ── -->
+  <g opacity="0.25" transform="translate(2560,1460)">
+    <!-- sparkle 1 -->
+    <rect x="8" y="0" width="4" height="20" fill="#34d399"/>
+    <rect x="0" y="8" width="20" height="4" fill="#34d399"/>
+    <!-- sparkle 2 -->
+    <rect x="44" y="6" width="4" height="16" fill="#a78bfa"/>
+    <rect x="38" y="12" width="16" height="4" fill="#a78bfa"/>
+    <!-- sparkle 3 -->
+    <rect x="80" y="2" width="4" height="22" fill="#fbbf24"/>
+    <rect x="71" y="10" width="22" height="4" fill="#fbbf24"/>
+    <!-- sparkle 4 small -->
+    <rect x="25" y="25" width="3" height="12" fill="#60a5fa"/>
+    <rect x="20" y="30" width="12" height="3" fill="#60a5fa"/>
+    <!-- sparkle 5 small -->
+    <rect x="62" y="28" width="3" height="12" fill="#f87171"/>
+    <rect x="57" y="33" width="12" height="3" fill="#f87171"/>
+  </g>
+
+  <!-- ── CENTER-TOP: circuit board trace ── -->
+  <g opacity="0.13" transform="translate(1100,8)">
+    <!-- main horizontal trace -->
+    <rect x="0" y="20" width="600" height="4" fill="#6b7280"/>
+    <!-- branches up -->
+    <rect x="60" y="4" width="4" height="20" fill="#6b7280"/>
+    <rect x="56" y="4" width="12" height="4" fill="#6b7280"/>
+    <rect x="160" y="4" width="4" height="20" fill="#6b7280"/>
+    <rect x="280" y="4" width="4" height="20" fill="#6b7280"/>
+    <rect x="274" y="4" width="16" height="4" fill="#6b7280"/>
+    <rect x="400" y="4" width="4" height="20" fill="#6b7280"/>
+    <rect x="520" y="4" width="4" height="20" fill="#6b7280"/>
+    <!-- branch dots -->
+    <rect x="57" y="1" width="10" height="4" fill="#9ca3af"/>
+    <rect x="157" y="1" width="10" height="4" fill="#9ca3af"/>
+    <rect x="277" y="1" width="10" height="4" fill="#9ca3af"/>
+    <rect x="397" y="1" width="10" height="4" fill="#9ca3af"/>
+    <rect x="517" y="1" width="10" height="4" fill="#9ca3af"/>
+  </g>
+
+  <!-- ── SCATTERED SMALL SPARKLES ── -->
+  <!-- top area -->
+  <g opacity="0.3">
+    <rect x="700" y="22" width="5" height="18" fill="#c4b5fd"/>
+    <rect x="693" y="29" width="18" height="5" fill="#c4b5fd"/>
+    <rect x="1000" y="14" width="4" height="14" fill="#86efac"/>
+    <rect x="994" y="20" width="14" height="4" fill="#86efac"/>
+    <rect x="1800" y="18" width="4" height="14" fill="#fbbf24"/>
+    <rect x="1794" y="24" width="14" height="4" fill="#fbbf24"/>
+    <rect x="2150" y="22" width="5" height="18" fill="#93c5fd"/>
+    <rect x="2143" y="29" width="18" height="5" fill="#93c5fd"/>
+  </g>
+  <!-- bottom area -->
+  <g opacity="0.28">
+    <rect x="400" y="1510" width="5" height="18" fill="#fbbf24"/>
+    <rect x="393" y="1517" width="18" height="5" fill="#fbbf24"/>
+    <rect x="900" y="1505" width="4" height="14" fill="#86efac"/>
+    <rect x="894" y="1511" width="14" height="4" fill="#86efac"/>
+    <rect x="1400" y="1510" width="5" height="18" fill="#c4b5fd"/>
+    <rect x="1393" y="1517" width="18" height="5" fill="#c4b5fd"/>
+    <rect x="1950" y="1505" width="4" height="14" fill="#93c5fd"/>
+    <rect x="1944" y="1511" width="14" height="4" fill="#93c5fd"/>
+    <rect x="2400" y="1510" width="5" height="18" fill="#fca5a5"/>
+    <rect x="2393" y="1517" width="18" height="5" fill="#fca5a5"/>
+  </g>
+  <!-- mid left -->
+  <g opacity="0.22">
+    <rect x="30" y="280" width="4" height="14" fill="#86efac"/>
+    <rect x="24" y="286" width="14" height="4" fill="#86efac"/>
+    <rect x="42" y="380" width="4" height="14" fill="#fbbf24"/>
+    <rect x="36" y="386" width="14" height="4" fill="#fbbf24"/>
+    <rect x="25" y="470" width="4" height="14" fill="#93c5fd"/>
+    <rect x="19" y="476" width="14" height="4" fill="#93c5fd"/>
+    <rect x="38" y="850" width="5" height="18" fill="#c4b5fd"/>
+    <rect x="31" y="857" width="18" height="5" fill="#c4b5fd"/>
+    <rect x="22" y="1050" width="4" height="14" fill="#86efac"/>
+    <rect x="16" y="1056" width="14" height="4" fill="#86efac"/>
+    <rect x="40" y="1200" width="4" height="14" fill="#fbbf24"/>
+    <rect x="34" y="1206" width="14" height="4" fill="#fbbf24"/>
+  </g>
+  <!-- mid right -->
+  <g opacity="0.22">
+    <rect x="2735" y="280" width="4" height="14" fill="#86efac"/>
+    <rect x="2729" y="286" width="14" height="4" fill="#86efac"/>
+    <rect x="2750" y="380" width="4" height="14" fill="#fbbf24"/>
+    <rect x="2744" y="386" width="14" height="4" fill="#fbbf24"/>
+    <rect x="2740" y="850" width="5" height="18" fill="#c4b5fd"/>
+    <rect x="2733" y="857" width="18" height="5" fill="#c4b5fd"/>
+    <rect x="2755" y="1100" width="4" height="14" fill="#93c5fd"/>
+    <rect x="2749" y="1106" width="14" height="4" fill="#93c5fd"/>
+    <rect x="2738" y="1280" width="4" height="14" fill="#fca5a5"/>
+    <rect x="2732" y="1286" width="14" height="4" fill="#fca5a5"/>
+  </g>
+
+  <!-- ── LARGE FAINT CENTER SHAPES ── -->
+  <!-- faint pixel hexagon outline center-bottom -->
+  <g opacity="0.04" transform="translate(1100,900)">
+    <rect x="150" y="0" width="300" height="30" fill="#6b7280"/>
+    <rect x="0" y="150" width="30" height="300" fill="#6b7280"/>
+    <rect x="570" y="150" width="30" height="300" fill="#6b7280"/>
+    <rect x="150" y="570" width="300" height="30" fill="#6b7280"/>
+    <rect x="30" y="30" width="120" height="120" fill="#6b7280"/>
+    <rect x="450" y="30" width="120" height="120" fill="#6b7280"/>
+    <rect x="30" y="450" width="120" height="120" fill="#6b7280"/>
+    <rect x="450" y="450" width="120" height="120" fill="#6b7280"/>
+  </g>
+</svg>
+</div>
+
+<div class="header">
+  <div class="header-text">
+    <div class="badge-internal">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <rect x="1" y="1" width="10" height="10" rx="3" fill="#f59e0b"/>
+      </svg>
+      Internal Build Update
+    </div>
+    <div class="eyebrow">Gitbank RWA Layer</div>
+    <h1>gitStock: Tokenized Stocks Inside Your Vault</h1>
+    <p class="subtitle">Buy NVDA, AAPL, TSLA and 545 more via a single GitHub comment. Soul-bound. Cross-chain. Zero gas.</p>
+  </div>
+  <div class="header-logos">
+    <div class="logo-wrap">
+      <img src="/gitbank-logo-orig.png" class="logo-img" alt="Gitbank" style="border-radius:50%; border:none;"/>
+      <span class="logo-name">Gitbank</span>
+    </div>
+    <div class="logo-x">×</div>
+    <div class="logo-wrap">
+      <img src="/ondo-logo-orig.png" class="logo-img" alt="Ondo" style="background:#fff; border-radius:28px; padding:12px; border:2px solid #e5e7eb;"/>
+      <span class="logo-name">Ondo Finance</span>
+    </div>
+  </div>
+</div>
+
+<div class="main-grid">
+
+  <!-- ── COL 1: HOW IT FLOWS ── -->
+  <div class="col-wrap">
+    <div class="section-title">How it works</div>
+    <div class="card" style="padding:26px;">
+      <div class="flow">
+
+        <div class="flow-node" style="background:#f0fdf4; border-color:#86efac;">
+          <div class="flow-icon" style="background:#dcfce7;">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <rect x="2" y="2" width="5" height="5" fill="#14532d"/>
+              <rect x="7" y="2" width="5" height="5" fill="#14532d"/>
+              <rect x="12" y="2" width="5" height="5" fill="#14532d"/>
+              <rect x="17" y="2" width="5" height="5" fill="#14532d"/>
+              <rect x="22" y="2" width="5" height="5" fill="#14532d"/>
+              <rect x="27" y="2" width="5" height="5" fill="#14532d"/>
+              <rect x="2" y="7" width="5" height="5" fill="#14532d"/>
+              <rect x="27" y="7" width="5" height="5" fill="#14532d"/>
+              <rect x="2" y="12" width="5" height="17" fill="#14532d"/>
+              <rect x="27" y="12" width="5" height="17" fill="#14532d"/>
+              <rect x="7" y="17" width="5" height="5" fill="#14532d"/>
+              <rect x="12" y="17" width="5" height="5" fill="#14532d"/>
+              <rect x="17" y="17" width="5" height="5" fill="#14532d"/>
+              <rect x="7" y="27" width="5" height="5" fill="#14532d"/>
+              <rect x="17" y="27" width="5" height="5" fill="#14532d"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flow-label" style="color:#15803d;">Step 1 — GitHub</div>
+            <div class="flow-title">Bot command in issue thread</div>
+            <div class="flow-desc">User mentions @gitbankbot. No wallet, no browser extension.</div>
+            <div class="flow-code">@gitbankbot buy 100 USDC of NVDA</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="18" height="24" viewBox="0 0 18 24" fill="none">
+            <rect x="7" y="1" width="4" height="16" rx="1" fill="#d1d5db"/>
+            <rect x="2" y="14" width="5" height="5" fill="#d1d5db"/>
+            <rect x="11" y="14" width="5" height="5" fill="#d1d5db"/>
+            <rect x="4" y="18" width="5" height="4" fill="#d1d5db"/>
+            <rect x="9" y="18" width="5" height="4" fill="#d1d5db"/>
+            <rect x="7" y="22" width="4" height="2" fill="#d1d5db"/>
+          </svg>
+          USDC bridged cross-chain
+        </div>
+
+        <div class="flow-node" style="background:#eff6ff; border-color:#bfdbfe;">
+          <div class="flow-icon" style="background:#dbeafe;">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <rect x="2" y="20" width="5" height="12" fill="#1d4ed8"/>
+              <rect x="27" y="20" width="5" height="12" fill="#1d4ed8"/>
+              <rect x="2" y="15" width="5" height="5" fill="#1d4ed8"/>
+              <rect x="27" y="15" width="5" height="5" fill="#1d4ed8"/>
+              <rect x="7" y="10" width="5" height="5" fill="#1d4ed8"/>
+              <rect x="22" y="10" width="5" height="5" fill="#1d4ed8"/>
+              <rect x="12" y="6" width="10" height="5" fill="#1d4ed8"/>
+              <rect x="2" y="25" width="30" height="3" fill="#93c5fd"/>
+              <rect x="7" y="22" width="20" height="3" fill="#93c5fd"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flow-label" style="color:#1d4ed8;">Step 2 — CCTP V2</div>
+            <div class="flow-title">Bridge USDC Base to Solana</div>
+            <div class="flow-desc">Circle Cross-Chain Transfer Protocol V2. Burn on Base, attestation polling, mint on Solana. USDC ATA as recipient.</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="18" height="24" viewBox="0 0 18 24" fill="none">
+            <rect x="7" y="1" width="4" height="16" rx="1" fill="#d1d5db"/>
+            <rect x="2" y="14" width="5" height="5" fill="#d1d5db"/>
+            <rect x="11" y="14" width="5" height="5" fill="#d1d5db"/>
+            <rect x="4" y="18" width="5" height="4" fill="#d1d5db"/>
+            <rect x="9" y="18" width="5" height="4" fill="#d1d5db"/>
+            <rect x="7" y="22" width="4" height="2" fill="#d1d5db"/>
+          </svg>
+          USDC swapped via Jupiter RFQ
+        </div>
+
+        <div class="flow-node" style="background:#faf5ff; border-color:#ddd6fe;">
+          <div class="flow-icon" style="background:#ede9fe;">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <rect x="2" y="14" width="20" height="5" fill="#7c3aed"/>
+              <rect x="20" y="9" width="5" height="5" fill="#7c3aed"/>
+              <rect x="25" y="4" width="5" height="5" fill="#7c3aed"/>
+              <rect x="12" y="19" width="20" height="5" fill="#a855f7"/>
+              <rect x="7" y="24" width="5" height="5" fill="#a855f7"/>
+              <rect x="2" y="29" width="5" height="5" fill="#a855f7"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flow-label" style="color:#6d28d9;">Step 3 — Jupiter v6 RFQ</div>
+            <div class="flow-title">Swap USDC to Ondo token</div>
+            <div class="flow-desc">JIT mint by Ondo solvers. Token-2022, decimals=9. Actual received amount read from ATA post-confirm.</div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="18" height="24" viewBox="0 0 18 24" fill="none">
+            <rect x="7" y="1" width="4" height="16" rx="1" fill="#d1d5db"/>
+            <rect x="2" y="14" width="5" height="5" fill="#d1d5db"/>
+            <rect x="11" y="14" width="5" height="5" fill="#d1d5db"/>
+            <rect x="4" y="18" width="5" height="4" fill="#d1d5db"/>
+            <rect x="9" y="18" width="5" height="4" fill="#d1d5db"/>
+            <rect x="7" y="22" width="4" height="2" fill="#d1d5db"/>
+          </svg>
+          Soul-bound position minted on Base
+        </div>
+
+        <div class="flow-node" style="background:#fffbeb; border-color:#fde68a;">
+          <div class="flow-icon" style="background:#fef3c7;">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+              <rect x="2" y="9" width="5" height="5" fill="#d97706"/>
+              <rect x="7" y="4" width="20" height="5" fill="#d97706"/>
+              <rect x="27" y="9" width="5" height="5" fill="#d97706"/>
+              <rect x="2" y="14" width="5" height="12" fill="#d97706"/>
+              <rect x="27" y="14" width="5" height="12" fill="#d97706"/>
+              <rect x="7" y="26" width="20" height="5" fill="#d97706"/>
+              <rect x="2" y="26" width="5" height="5" fill="#d97706"/>
+              <rect x="27" y="26" width="5" height="5" fill="#d97706"/>
+              <rect x="12" y="14" width="10" height="5" fill="#fbbf24"/>
+              <rect x="14" y="11" width="6" height="10" fill="#fbbf24"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flow-label" style="color:#b45309;">Step 4 — GitVault</div>
+            <div class="flow-title">gitStock ERC-20 minted</div>
+            <div class="flow-desc">Soul-bound position in user's Base vault. Non-transferable. Relayer pays all gas. User touches zero ETH.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COL 2: WHAT SHIPPED ── -->
+  <div style="display:flex;flex-direction:column;">
+    <div class="section-title">What shipped</div>
+    <div class="card" style="padding:26px;">
+      <div class="shipped-grid">
+
+        <div class="shipped-item">
+          <span class="badge-live">Live on Base Mainnet</span>
+          <svg class="shipped-icon" width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <rect x="4" y="2" width="5" height="5" fill="#2563eb"/>
+            <rect x="9" y="2" width="22" height="5" fill="#2563eb"/>
+            <rect x="31" y="2" width="5" height="5" fill="#2563eb"/>
+            <rect x="4" y="7" width="5" height="33" fill="#2563eb"/>
+            <rect x="31" y="7" width="5" height="33" fill="#2563eb"/>
+            <rect x="4" y="40" width="5" height="4" fill="#2563eb"/>
+            <rect x="9" y="40" width="22" height="4" fill="#2563eb"/>
+            <rect x="31" y="40" width="5" height="4" fill="#2563eb"/>
+            <rect x="11" y="16" width="18" height="4" fill="#93c5fd"/>
+            <rect x="11" y="23" width="14" height="4" fill="#93c5fd"/>
+            <rect x="11" y="30" width="16" height="4" fill="#93c5fd"/>
+          </svg>
+          <div class="item-title">GitStockFactory</div>
+          <div class="item-desc">Deploys one soul-bound GitStockToken ERC-20 per ticker. Apache-2.0, Basescan verified, v1.0.0.</div>
+          <code class="addr">0x916542efC65b82Ab1a8d64DFB695621c9b810416</code>
+          <div class="pills">
+            <span class="pill" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;">Base Mainnet</span>
+            <span class="pill" style="background:#d1fae5; color:#065f46; border-color:#6ee7b7;">Basescan verified</span>
+            <span class="pill" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe;">decimals=9</span>
+          </div>
+        </div>
+
+        <div class="shipped-item">
+          <span class="badge-testing">Internal Testing</span>
+          <svg class="shipped-icon" width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <rect x="2" y="18" width="7" height="7" fill="#0891b2"/>
+            <rect x="9" y="13" width="7" height="7" fill="#0891b2"/>
+            <rect x="16" y="8" width="12" height="7" fill="#0891b2"/>
+            <rect x="28" y="13" width="7" height="7" fill="#0891b2"/>
+            <rect x="35" y="18" width="7" height="7" fill="#0891b2"/>
+            <rect x="2" y="25" width="7" height="7" fill="#22d3ee"/>
+            <rect x="9" y="25" width="26" height="7" fill="#22d3ee"/>
+            <rect x="35" y="25" width="7" height="7" fill="#22d3ee"/>
+            <rect x="16" y="32" width="12" height="7" fill="#0891b2"/>
+          </svg>
+          <div class="item-title">CCTP V2 Bridge</div>
+          <div class="item-desc">Full implementation. USDC Base to Solana and back. Burn, attestation poll, receive message. USDC ATA as mint recipient. No TODOs.</div>
+          <div class="pills">
+            <span class="pill" style="background:#ecfeff; color:#0e7490; border-color:#a5f3fc;">Circle CCTP V2</span>
+            <span class="pill" style="background:#ecfeff; color:#0e7490; border-color:#a5f3fc;">Base + Solana</span>
+          </div>
+        </div>
+
+        <div class="shipped-item">
+          <span class="badge-testing">Internal Testing</span>
+          <svg class="shipped-icon" width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <rect x="4" y="34" width="5" height="7" fill="#7c3aed"/>
+            <rect x="11" y="27" width="5" height="14" fill="#7c3aed"/>
+            <rect x="18" y="20" width="5" height="21" fill="#7c3aed"/>
+            <rect x="25" y="13" width="5" height="28" fill="#7c3aed"/>
+            <rect x="32" y="22" width="5" height="19" fill="#a78bfa"/>
+            <rect x="39" y="8" width="5" height="33" fill="#a78bfa"/>
+            <rect x="4" y="6" width="36" height="4" fill="#e5e7eb"/>
+            <rect x="2" y="6" width="5" height="35" fill="#e5e7eb"/>
+          </svg>
+          <div class="item-title">Jupiter v6 RFQ</div>
+          <div class="item-desc">Quote, build, sign, confirm swaps to 548 Ondo tokens. Market hours enforcement built in. DST-aware ET check. MarketClosedError with reopen time.</div>
+          <div class="pills">
+            <span class="pill" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe;">v6 RFQ</span>
+            <span class="pill" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe;">MarketClosedError</span>
+            <span class="pill" style="background:#f5f3ff; color:#6d28d9; border-color:#ddd6fe;">24/5 trading</span>
+          </div>
+        </div>
+
+        <div class="shipped-item">
+          <span class="badge-testing">Internal Testing</span>
+          <svg class="shipped-icon" width="44" height="44" viewBox="0 0 44 44" fill="none">
+            <rect x="6" y="4" width="32" height="10" fill="#10b981"/>
+            <rect x="4" y="4" width="2" height="10" fill="#059669"/>
+            <rect x="38" y="4" width="2" height="10" fill="#059669"/>
+            <rect x="6" y="18" width="32" height="10" fill="#10b981"/>
+            <rect x="4" y="18" width="2" height="10" fill="#059669"/>
+            <rect x="38" y="18" width="2" height="10" fill="#059669"/>
+            <rect x="6" y="32" width="32" height="10" fill="#10b981"/>
+            <rect x="4" y="32" width="2" height="10" fill="#059669"/>
+            <rect x="38" y="32" width="2" height="10" fill="#059669"/>
+            <rect x="11" y="8" width="5" height="3" fill="#d1fae5"/>
+            <rect x="11" y="22" width="5" height="3" fill="#d1fae5"/>
+            <rect x="11" y="36" width="5" height="3" fill="#d1fae5"/>
+          </svg>
+          <div class="item-title">RWA Registry</div>
+          <div class="item-desc">548 real Ondo mint addresses fetched on-chain from Ondo GM program via Helius RPC. Token-2022, decimals=9. Not docs — on-chain verified.</div>
+          <div class="pills">
+            <span class="pill" style="background:#ecfdf5; color:#065f46; border-color:#6ee7b7;">548 tickers</span>
+            <span class="pill" style="background:#ecfdf5; color:#065f46; border-color:#6ee7b7;">Token-2022</span>
+            <span class="pill" style="background:#ecfdf5; color:#065f46; border-color:#6ee7b7;">Pyth oracles</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COL 3: STATS + STATUS ── -->
+  <div style="display:flex;flex-direction:column;">
+    <div class="section-title">Numbers and status</div>
+    <div class="card" style="padding:26px;">
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" style="color:#3b82f6;">548</div>
+          <div class="stat-label">Ondo tickers</div>
+          <div class="stat-sub">NVDA, AAPL, TSLA, SPCX, SPY + 543 more</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:#10b981;">15/15</div>
+          <div class="stat-label">E2E tests passing</div>
+          <div class="stat-sub">Mock mode, full pipeline</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:#7c3aed;">9</div>
+          <div class="stat-label">Token decimals</div>
+          <div class="stat-sub">Matches Ondo Token-2022 on Solana</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" style="color:#f59e0b;">24/5</div>
+          <div class="stat-label">Market hours</div>
+          <div class="stat-sub">Sun 8pm ET to Fri 8pm ET</div>
+        </div>
+      </div>
+
+      <div class="status-list">
+        <div class="status-row">
+          <div class="status-dot" style="background:#10b981;"></div>
+          <div class="status-text">
+            <div class="status-name">GitStockFactory</div>
+            <div class="status-desc">Base Mainnet, Apache-2.0, Basescan verified</div>
+          </div>
+          <span class="status-badge" style="background:#d1fae5; color:#065f46;">Live</span>
+        </div>
+        <div class="status-row">
+          <div class="status-dot" style="background:#10b981;"></div>
+          <div class="status-text">
+            <div class="status-name">Webhook handler</div>
+            <div class="status-desc">buy_stock, sell_stock, rwa_portfolio commands active</div>
+          </div>
+          <span class="status-badge" style="background:#d1fae5; color:#065f46;">Done</span>
+        </div>
+        <div class="status-row">
+          <div class="status-dot" style="background:#10b981;"></div>
+          <div class="status-text">
+            <div class="status-name">CCTP V2 + Jupiter v6</div>
+            <div class="status-desc">Full implementation, no TODOs, mock 15/15</div>
+          </div>
+          <span class="status-badge" style="background:#d1fae5; color:#065f46;">Done</span>
+        </div>
+        <div class="status-row">
+          <div class="status-dot" style="background:#f59e0b;"></div>
+          <div class="status-text">
+            <div class="status-name">Solana testnet run</div>
+            <div class="status-desc">Real cross-chain execution, not yet triggered</div>
+          </div>
+          <span class="status-badge" style="background:#fef3c7; color:#92400e;">Next</span>
+        </div>
+        <div class="status-row">
+          <div class="status-dot" style="background:#e5e7eb;"></div>
+          <div class="status-text">
+            <div class="status-name">Public launch</div>
+            <div class="status-desc">After real testnet run passes</div>
+          </div>
+          <span class="status-badge" style="background:#f1f5f9; color:#64748b;">Pending</span>
+        </div>
+      </div>
+
+      <div class="market-node">
+        <div class="market-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+            <rect x="4" y="2" width="5" height="5" fill="#15803d"/>
+            <rect x="9" y="2" width="14" height="5" fill="#15803d"/>
+            <rect x="23" y="2" width="5" height="5" fill="#15803d"/>
+            <rect x="2" y="7" width="5" height="5" fill="#15803d"/>
+            <rect x="29" y="7" width="5" height="5" fill="#15803d"/>
+            <rect x="2" y="12" width="5" height="14" fill="#15803d"/>
+            <rect x="29" y="12" width="5" height="14" fill="#15803d"/>
+            <rect x="2" y="26" width="5" height="5" fill="#15803d"/>
+            <rect x="29" y="26" width="5" height="5" fill="#15803d"/>
+            <rect x="4" y="31" width="5" height="5" fill="#15803d"/>
+            <rect x="9" y="31" width="14" height="5" fill="#15803d"/>
+            <rect x="23" y="31" width="5" height="5" fill="#15803d"/>
+            <rect x="16" y="9" width="5" height="12" fill="#16a34a"/>
+            <rect x="16" y="19" width="7" height="5" fill="#16a34a"/>
+          </svg>
+        </div>
+        <div>
+          <div class="market-label">Market Hours Enforced On-Bot</div>
+          <div class="market-sub">Ondo GM is 24/5: Sunday 8pm ET through Friday 8pm ET. Bot rejects buy/sell outside hours and posts exact reopen time. DST-aware.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">gitbank.io &nbsp;|&nbsp; github.com/gitbankio/gitbank-rwa &nbsp;|&nbsp; Internal Build Update, June 2026 &nbsp;|&nbsp; Not yet public</div>
+
+</div>
+
+<script>
+  function scale() {
+    var c = document.getElementById('canvas');
+    var sw = window.innerWidth;
+    var sh = window.innerHeight;
+    var W = 2800, H = 1575;
+    var s = Math.min(sw / W, sh / H);
+    var tx = (sw - W * s) / 2;
+    var ty = (sh - H * s) / 2;
+    c.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')';
+  }
+  scale();
+  window.addEventListener('resize', scale);
+</script>
+</body>
+</html>

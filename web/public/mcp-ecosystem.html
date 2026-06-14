@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=2800"/>
+<title>Gitbank MCP Ecosystem</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #e8eaee;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    display: flex; align-items: flex-start; justify-content: center;
+    width: 2800px; min-height: 1640px; padding: 48px;
+  }
+  .card {
+    background: #fff; border: 1px solid #dde1e9; border-radius: 44px;
+    width: 2704px; padding: 72px 96px 60px;
+    box-shadow: 0 4px 40px rgba(0,0,0,.07);
+  }
+
+  /* S1: INTRO */
+  .intro { display: flex; align-items: center; justify-content: space-between; margin-bottom: 44px; gap: 64px; }
+  .intro-left { display: flex; flex-direction: column; gap: 0; }
+  .tag { display: inline-flex; align-items: center; gap: 12px; background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 999px; padding: 6px 22px; margin-bottom: 18px; width: fit-content; }
+  .tag-dot { width: 12px; height: 12px; border-radius: 50%; background: #2563eb; flex-shrink: 0; }
+  .tag-text { font-size: 18px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #2563eb; }
+  .title { font-size: 60px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 14px; }
+  .subtitle { font-size: 26px; color: #64748b; line-height: 1.5; max-width: 1040px; }
+  .endpoint-pill {
+    flex-shrink: 0; background: #f8fafc; border: 3px solid #e2e8f0; border-radius: 24px;
+    padding: 24px 32px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  }
+  .ep-label { font-size: 18px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #94a3b8; }
+  .ep-row { display: flex; align-items: center; gap: 14px; }
+  .ep-url { font-family: 'Courier New', monospace; font-size: 26px; font-weight: 700; color: #0f172a; }
+  .ep-dot { width: 16px; height: 16px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 6px rgba(34,197,94,.18); animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* DIVIDERS */
+  .sep { border: none; border-top: 2px solid #f1f5f9; margin: 36px 0; }
+
+  /* S2: LOGOS */
+  .logos-header { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+  .section-label { font-size: 18px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #94a3b8; }
+  .badge { display: inline-flex; align-items: center; gap: 10px; border-radius: 999px; padding: 6px 20px; font-size: 18px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+  .badge.live { background: #dcfce7; border: 2px solid #86efac; color: #15803d; }
+  .badge.testing { background: #f1f5f9; border: 2px solid #cbd5e1; color: #64748b; }
+  .live-dot { width: 12px; height: 12px; border-radius: 50%; background: #22c55e; flex-shrink: 0; animation: blink 1.8s ease-in-out infinite; }
+  .testing-ring { width: 12px; height: 12px; border-radius: 50%; border: 3px solid #94a3b8; flex-shrink: 0; }
+
+  .logo-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+
+  .logo-card {
+    background: #f8fafc; border: 2px solid #e9edf2; border-radius: 22px;
+    padding: 22px 16px 20px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .logo-card.is-live {
+    background: #f0fdf4; border-color: #86efac; border-width: 3px;
+    position: relative;
+  }
+  .logo-card.is-live::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(to right,#22c55e,#4ade80); border-radius: 22px 22px 0 0; }
+  .logo-card.is-more { border-style:dashed; opacity:0.45; }
+
+  .logo-img { width: 96px; height: 96px; border-radius: 20px; overflow: hidden; flex-shrink: 0; }
+  .logo-img img { width: 96px; height: 96px; object-fit: cover; display: block; }
+  .logo-img.contain-pad { background:#fff; padding:8px; }
+  .logo-img.contain-pad img { width:80px; height:80px; object-fit:contain; }
+  .logo-img.gemini-fix { background:#fff; overflow:hidden; }
+  .logo-img.gemini-fix img { width:96px; height:96px; object-fit:contain; transform:scale(2); }
+
+  .logo-name { font-size: 20px; font-weight: 600; color: #475569; text-align: center; line-height: 1.3; }
+  .logo-tag { font-size: 16px; color: #94a3b8; text-align: center; }
+  .live-badge-sm { display:flex; align-items:center; gap:8px; background:#dcfce7; border:2px solid #86efac; border-radius:999px; padding:4px 14px; font-size:16px; font-weight:700; color:#15803d; letter-spacing:0.1em; }
+
+  /* S3: GOALS */
+  .goals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .goal-card { background: #f8fafc; border: 3px solid #e2e8f0; border-radius: 28px; padding: 36px 40px; }
+  .goal-hd { display: flex; align-items: center; gap: 20px; margin-bottom: 22px; }
+  .goal-icon { width: 72px; height: 72px; border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .goal-icon.blue { background: #eff6ff; border: 3px solid #bfdbfe; }
+  .goal-icon.purple { background: #faf5ff; border: 3px solid #e9d5ff; }
+  .goal-title { font-size: 26px; font-weight: 700; color: #0f172a; }
+  .goal-sub { font-size: 20px; color: #64748b; margin-top: 2px; }
+  .goal-points { display: flex; flex-direction: column; gap: 12px; }
+  .goal-pt { display: flex; align-items: flex-start; gap: 14px; }
+  .bullet { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 10px; }
+  .bullet.b { background: #3b82f6; }
+  .bullet.p { background: #8b5cf6; }
+  .goal-text { font-size: 22px; color: #475569; line-height: 1.5; }
+
+  /* FOOTER */
+  .footer { display: flex; align-items: center; justify-content: space-between; padding-top: 32px; margin-top: 32px; border-top: 2px solid #f1f5f9; }
+  .f-brand { display: flex; align-items: center; gap: 16px; }
+  .f-logo { width: 52px; height: 52px; border-radius: 14px; background: #0f172a; display: flex; align-items: center; justify-content: center; }
+  .f-name { font-size: 26px; font-weight: 700; color: #0f172a; }
+  .f-link { font-size: 22px; font-family: 'Courier New', monospace; color: #2563eb; font-weight: 600; }
+  .f-count { font-size: 22px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- S1: INTRO -->
+  <div class="intro">
+    <div class="intro-left">
+      <div class="tag"><div class="tag-dot"></div><span class="tag-text">MCP Ecosystem</span></div>
+      <div class="title">Gitbank MCP Clients</div>
+      <div class="subtitle">Connect any AI agent to your Web3 vault on Base. Read live balances, queue operations, manage repos from inside your favorite AI.</div>
+    </div>
+    <div class="endpoint-pill">
+      <div class="ep-label">Live Endpoint</div>
+      <div class="ep-row">
+        <div class="ep-url">gitbank.io/api/mcp</div>
+        <div class="ep-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="sep"/>
+
+  <!-- S2: LOGOS -->
+  <div class="logos-header">
+    <span class="section-label">AI Clients</span>
+    <div class="badge live"><div class="live-dot"></div>Live Now</div>
+    <div class="badge testing"><div class="testing-ring"></div>Integrating</div>
+  </div>
+
+  <div class="logo-grid">
+
+    <div class="logo-card is-live">
+      <div class="logo-img"><img src="/logos/claude.png" alt="Claude"/></div>
+      <div class="logo-name">Claude Desktop</div>
+      <div class="live-badge-sm"><div class="live-dot"></div>LIVE</div>
+    </div>
+
+    <div class="logo-card is-live">
+      <div class="logo-img"><img src="/logos/cursor.png" alt="Cursor"/></div>
+      <div class="logo-name">Cursor</div>
+      <div class="live-badge-sm"><div class="live-dot"></div>LIVE</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img"><img src="/logos/chatgpt.png" alt="ChatGPT"/></div>
+      <div class="logo-name">ChatGPT Desktop</div>
+      <div class="logo-tag">Plus / Pro</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img gemini-fix"><img src="/logos/gemini.png" alt="Gemini"/></div>
+      <div class="logo-name">Gemini CLI</div>
+      <div class="logo-tag">Free</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img contain-pad"><img src="/logos/ibm.png" alt="IBM watsonx"/></div>
+      <div class="logo-name">IBM watsonx.ai</div>
+      <div class="logo-tag">AI Builders</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img"><img src="/logos/kimi.png" alt="Kimi"/></div>
+      <div class="logo-name">Kimi.ai</div>
+      <div class="logo-tag">Free</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img"><img src="/logos/vscode.png" alt="VS Code"/></div>
+      <div class="logo-name">VS Code Copilot</div>
+      <div class="logo-tag">Copilot sub</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img"><img src="/logos/github.png" alt="GitHub Copilot"/></div>
+      <div class="logo-name">GitHub Copilot</div>
+      <div class="logo-tag">Copilot sub</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img"><img src="/logos/grok.png" alt="Grok"/></div>
+      <div class="logo-name">Grok</div>
+      <div class="logo-tag">Paid plan</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img contain-pad"><img src="/logos/windsurf.png" alt="Windsurf"/></div>
+      <div class="logo-name">Windsurf</div>
+      <div class="logo-tag">Free tier</div>
+    </div>
+
+    <div class="logo-card">
+      <div class="logo-img"><img src="/logos/hermes.png" alt="Hermes Agent"/></div>
+      <div class="logo-name">Hermes Agent</div>
+      <div class="logo-tag">Free / OSS</div>
+    </div>
+
+    <div class="logo-card is-more">
+      <div class="logo-img" style="background:#f1f5f9;display:flex;align-items:center;justify-content:center;">
+        <svg width="44" height="44" viewBox="0 0 22 22" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="11" cy="11" r="9"/><line x1="11" y1="7" x2="11" y2="15"/><line x1="7" y1="11" x2="15" y2="11"/>
+        </svg>
+      </div>
+      <div class="logo-name" style="color:#94a3b8">More soon</div>
+      <div class="logo-tag">Jan.ai, Cline...</div>
+    </div>
+
+  </div>
+
+  <hr class="sep"/>
+
+  <!-- S3: GOALS -->
+  <div class="goals-grid">
+
+    <div class="goal-card">
+      <div class="goal-hd">
+        <div class="goal-icon blue">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="goal-title">AI Agent Wallet Security</div>
+          <div class="goal-sub">Phishing-proof, hack-resistant Web3 vault</div>
+        </div>
+      </div>
+      <div class="goal-points">
+        <div class="goal-pt"><div class="bullet b"></div><div class="goal-text">Soul-bound vault anchored to your GitHub permanent user ID. Impossible to spoof or phish.</div></div>
+        <div class="goal-pt"><div class="bullet b"></div><div class="goal-text">Every write operation requires a signed GitHub comment. AI cannot move funds without your approval.</div></div>
+        <div class="goal-pt"><div class="bullet b"></div><div class="goal-text">X identity as second verification layer before any transaction executes on Base mainnet.</div></div>
+        <div class="goal-pt"><div class="bullet b"></div><div class="goal-text">No private keys, no ERC-20 approvals, no drain exploits. Relayer pays all gas, zero ETH needed.</div></div>
+      </div>
+    </div>
+
+    <div class="goal-card">
+      <div class="goal-hd">
+        <div class="goal-icon purple">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+          </svg>
+        </div>
+        <div>
+          <div class="goal-title">AI Repo Management</div>
+          <div class="goal-sub">Tell your AI to build, ship, and get paid</div>
+        </div>
+      </div>
+      <div class="goal-points">
+        <div class="goal-pt"><div class="bullet p"></div><div class="goal-text">Ask any AI to build a feature. Gitbank handles the push to your GitHub repo automatically.</div></div>
+        <div class="goal-pt"><div class="bullet p"></div><div class="goal-text">Auto-deploy to GitHub Pages on every approved PR merge, no manual CI setup needed.</div></div>
+        <div class="goal-pt"><div class="bullet p"></div><div class="goal-text">Assign USDC bounties to GitHub Issues with one @gitbankbot comment, auto-pay on PR merge.</div></div>
+        <div class="goal-pt"><div class="bullet p"></div><div class="goal-text">Track project progress, manage contributors, reclaim expired bounties, all from AI chat.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="f-brand">
+      <div class="f-logo">
+        <svg width="28" height="28" viewBox="0 0 18 18" fill="none">
+          <path d="M9 2L3 5.5V12.5L9 16L15 12.5V5.5L9 2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+          <circle cx="9" cy="9" r="2.2" fill="white"/>
+        </svg>
+      </div>
+      <span class="f-name">Gitbank</span>
+    </div>
+    <div class="f-count">11 clients + more coming</div>
+    <div class="f-link">gitbank.io/mcp</div>
+  </div>
+
+</div>
+</body>
+</html>

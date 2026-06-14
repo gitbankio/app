@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gitbank x x402 is Live</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f8f9fc;
+    color: #111;
+    width: 2800px;
+    min-height: 1575px;
+    padding: 80px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    transform-origin: top left;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 52px;
+  }
+  .logo-wrap {
+    width: 88px;
+    height: 88px;
+    border-radius: 22px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #0000FF;
+  }
+  .header-text { flex: 1; }
+  .eyebrow {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 58px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+    line-height: 1.05;
+    margin-bottom: 10px;
+  }
+  h1 span { color: #0000FF; }
+  .subtitle {
+    font-size: 22px;
+    color: #6b7280;
+    font-weight: 400;
+  }
+  .badge-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 99px;
+    background: #d1fae5;
+    color: #065f46;
+    margin-left: 16px;
+    vertical-align: middle;
+  }
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+  }
+
+  /* ── GRID ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr 0.85fr;
+    gap: 32px;
+    flex: 1;
+    align-items: start;
+  }
+
+  /* ── SHARED ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::after {
+    content: "";
+    flex: 1;
+    height: 1.5px;
+    background: #e5e7eb;
+  }
+  .card {
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 36px;
+  }
+
+  /* ── COL 1: Statement + Commands ── */
+  .statement {
+    font-size: 19px;
+    line-height: 1.65;
+    color: #374151;
+    margin-bottom: 32px;
+  }
+  .statement strong { color: #0f172a; font-weight: 700; }
+
+  .cmd-list { display: flex; flex-direction: column; gap: 16px; }
+  .cmd-item {
+    background: #f8f9fc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px 22px;
+  }
+  .cmd-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cmd-tag {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-radius: 99px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .cmd-code {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 15px;
+    color: #0f172a;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    word-break: break-all;
+  }
+  .cmd-code .mention { color: #0000FF; font-weight: 600; }
+  .cmd-code .amount { color: #059669; font-weight: 600; }
+  .cmd-code .query { color: #7c3aed; }
+  .cmd-desc {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  /* ── COL 2: Example Result ── */
+  .receipt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+    margin-bottom: 28px;
+    font-size: 15px;
+  }
+  .r-label { color: #9ca3af; font-weight: 500; }
+  .r-value { color: #0f172a; font-weight: 500; word-break: break-all; }
+  .r-value.green { color: #059669; font-weight: 700; }
+  .r-value.link { color: #0000FF; text-decoration: underline; }
+  .r-value.mono { font-family: "SF Mono", monospace; font-size: 13px; }
+
+  /* Nansen table */
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .table-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6b7280;
+  }
+  .table-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    border-radius: 99px;
+    padding: 3px 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  thead th {
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    border-bottom: 1.5px solid #e5e7eb;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody td {
+    padding: 9px 12px;
+    color: #0f172a;
+    white-space: nowrap;
+  }
+  tbody td.chain {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  tbody td.sym { font-weight: 700; color: #0f172a; }
+  tbody td.flow-pos { color: #059669; font-weight: 600; }
+  tbody td.flow-neg { color: #dc2626; font-weight: 600; }
+  tbody td.mcap { color: #374151; }
+  .chain-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .eth { background: #627eea; }
+  .sol { background: #9945ff; }
+
+  .receipt-url {
+    font-family: "SF Mono", monospace;
+    font-size: 13px;
+    color: #0000FF;
+    background: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  /* ── COL 3: Build ── */
+  .build-list { display: flex; flex-direction: column; gap: 14px; }
+  .build-item {
+    background: #f8f9fc;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .build-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .build-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 5px;
+  }
+  .build-desc {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .how-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 28px; }
+  .how-step {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f3f4f6;
+    align-items: flex-start;
+  }
+  .how-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #0000FF;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { font-size: 15px; color: #374151; line-height: 1.5; }
+  .step-text strong { color: #0f172a; font-weight: 700; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 48px;
+    font-size: 16px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .footer-sep { color: #d1d5db; }
+  .pill {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 99px;
+    border: 1.5px solid;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-wrap">
+    <img src="/logo-gitbank.png" width="88" height="88" style="display:block;object-fit:cover;width:88px;height:88px;" alt="Gitbank">
+  </div>
+  <div class="header-text">
+    <div class="eyebrow">Gitbank</div>
+    <h1>x402 is Live on Base <span class="badge-live"><span class="live-dot"></span>Live</span></h1>
+    <div class="subtitle">Pay any API from a tweet. No wallet popups. No API keys. No gas.</div>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="main-grid">
+
+  <!-- COL 1: Statement + Commands -->
+  <div>
+    <div class="section-title">What it is</div>
+    <div class="card" style="margin-bottom:28px;">
+      <div class="statement">
+        Your vault on Base signs a <strong>gasless EIP-3009 USDC transfer.</strong> The Gitbank Relayer submits it on-chain and retries the API with the payment proof attached. You pay the API. You get the data. The tx lands on Base Mainnet. <strong>You never touch a wallet.</strong>
+      </div>
+      <div class="how-list">
+        <div class="how-step">
+          <div class="step-num">1</div>
+          <div class="step-text">Tweet a command at <strong>@gitbankbot</strong></div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">2</div>
+          <div class="step-text">Bot probes the API, gets HTTP <strong>402 payment challenge</strong></div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">3</div>
+          <div class="step-text">Relayer <strong>signs EIP-3009</strong> from your vault, pays in USDC</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">4</div>
+          <div class="step-text">API returns data. Bot replies with results + <strong>full data link</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Commands</div>
+    <div class="cmd-list">
+
+      <div class="cmd-item">
+        <div class="cmd-label">
+          <img src="/logo-exa.png" height="18" style="height:18px;vertical-align:middle;border-radius:3px;" alt="Exa">
+          AI Search
+          <span class="cmd-tag">@ExaAILabs</span>
+        </div>
+        <div class="cmd-code"><span class="mention">@gitbankbot</span> x402-pay <span class="mention">@ExaAILabs</span> <span class="query">"gitbank defi protocols"</span> <span class="amount">0.007 USDC</span></div>
+        <div class="cmd-desc">Pays Exa AI neural search. Returns top web results with title, URL, relevance score.</div>
+      </div>
+
+      <div class="cmd-item">
+        <div class="cmd-label">
+          <img src="/logo-nansen.png" height="18" style="height:18px;vertical-align:middle;border-radius:3px;" alt="Nansen">
+          Smart Money
+          <span class="cmd-tag" style="background:#f0fdf4;color:#15803d;">@nansen_ai</span>
+        </div>
+        <div class="cmd-code"><span class="mention">@gitbankbot</span> x402-pay <span class="mention">@nansen_ai</span> <span class="amount">0.05 USDC</span></div>
+        <div class="cmd-desc">Pays Nansen smart money netflow API. Returns which tokens smart traders are moving into across all chains right now.</div>
+      </div>
+
+      <div class="cmd-item">
+        <div class="cmd-label">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" fill="#ecfdf5" stroke="#a7f3d0"/><path d="M4 7h6M9 5l2 2-2 2" stroke="#059669" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Any x402 URL
+        </div>
+        <div class="cmd-code"><span class="mention">@gitbankbot</span> x402-pay <span class="query">https://your-api.com/data</span> <span class="amount">0.01 USDC</span></div>
+        <div class="cmd-desc">Works with any x402-compatible endpoint. If it returns HTTP 402 with a valid payment challenge, Gitbank handles the rest.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COL 2: Example Result -->
+  <div>
+    <div class="section-title">Example result</div>
+    <div class="card">
+
+      <!-- Receipt -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;background:#d1fae5;color:#065f46;border-radius:99px;padding:3px 10px;">x402</span>
+        <span style="font-size:13px;color:#9ca3af;">payment receipt</span>
+      </div>
+
+      <div class="receipt-url">https://api.nansen.ai/api/v1/smart-money/netflow</div>
+
+      <div class="receipt-grid" style="margin-bottom:20px;">
+        <div class="r-label">Amount</div>      <div class="r-value">0.05 USDC</div>
+        <div class="r-label">Payer</div>       <div class="r-value mono">0x1e660...CF2 (Gitbank Relayer)</div>
+        <div class="r-label">Recipient</div>   <div class="r-value mono">0x9305...13f</div>
+        <div class="r-label">Network</div>     <div class="r-value">Base Mainnet</div>
+        <div class="r-label">Tx</div>          <div class="r-value link mono">0x03b1fb12438c271ff3...</div>
+        <div class="r-label">API Status</div>  <div class="r-value green">200 OK (payment accepted)</div>
+        <div class="r-label">Paid at</div>     <div class="r-value">6/9/2026, 3:46:49 PM</div>
+      </div>
+
+      <!-- Nansen table -->
+      <div class="table-header">
+        <div class="table-label">Response Summary — Smart Money Netflow</div>
+        <div class="table-badge">10 rows</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Token</th>
+            <th>Chain</th>
+            <th>Net Flow 24h</th>
+            <th>Net Flow 7d</th>
+            <th>Market Cap</th>
+            <th>Traders</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="sym">LIT</td>
+            <td class="chain"><span class="chain-dot eth"></span>ethereum</td>
+            <td class="flow-pos">$488.47K</td>
+            <td class="flow-pos">$488.62K</td>
+            <td class="mcap">$408.18M</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td class="sym">TRUMP</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$49.98K</td>
+            <td class="flow-pos">$49.98K</td>
+            <td class="mcap">$398.34M</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td class="sym">KINS</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$5.46K</td>
+            <td class="flow-pos">$57.27K</td>
+            <td class="mcap">$2.62M</td>
+            <td>6</td>
+          </tr>
+          <tr>
+            <td class="sym">EUROPOOR</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$2.66K</td>
+            <td class="flow-pos">$2.66K</td>
+            <td class="mcap">$336.84K</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td class="sym">UPEG</td>
+            <td class="chain"><span class="chain-dot eth"></span>ethereum</td>
+            <td class="flow-pos">$1.81K</td>
+            <td class="flow-neg">-$800.59</td>
+            <td class="mcap">$6.76M</td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td class="sym">PIPPIN</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$1.63K</td>
+            <td class="flow-pos">$1.63K</td>
+            <td class="mcap">$22.58M</td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td class="sym">SUIT</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$1.32K</td>
+            <td class="flow-pos">$1.32K</td>
+            <td class="mcap">$115.57K</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td class="sym">BP</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$1.27K</td>
+            <td class="flow-pos">$2.93K</td>
+            <td class="mcap">$163.34K</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td class="sym">BBALL</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$1.07K</td>
+            <td class="flow-pos">$1.04K</td>
+            <td class="mcap">$69.55K</td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td class="sym">PARQ</td>
+            <td class="chain"><span class="chain-dot sol"></span>solana</td>
+            <td class="flow-pos">$999.87</td>
+            <td class="flow-pos">$1.26K</td>
+            <td class="mcap">$1.06M</td>
+            <td>2</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1.5px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;color:#9ca3af;">Full data stored permanently on-chain</div>
+        <div style="font-family:'SF Mono',monospace;font-size:13px;color:#0000FF;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:5px 12px;">gitbank.io/x402/result/bfddf3bd...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COL 3: What you can build -->
+  <div>
+    <div class="section-title">What you can build</div>
+    <div class="build-list">
+
+      <div class="build-item">
+        <div class="build-icon" style="background:#eff6ff;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="4" height="4" fill="#1d4ed8"/>
+            <rect x="10" y="3" width="4" height="4" fill="#1d4ed8"/>
+            <rect x="17" y="3" width="4" height="4" fill="#1d4ed8"/>
+            <rect x="3" y="10" width="4" height="4" fill="#93c5fd"/>
+            <rect x="10" y="10" width="4" height="4" fill="#1d4ed8"/>
+            <rect x="17" y="10" width="4" height="4" fill="#93c5fd"/>
+            <rect x="3" y="17" width="4" height="4" fill="#1d4ed8"/>
+            <rect x="10" y="17" width="4" height="4" fill="#93c5fd"/>
+            <rect x="17" y="17" width="4" height="4" fill="#1d4ed8"/>
+          </svg>
+        </div>
+        <div>
+          <div class="build-title">AI Agents</div>
+          <div class="build-desc">Agents that buy data on demand, tweet-by-tweet, with no accounts or subscriptions. Claude, GPT, any agent with a Gitbank vault.</div>
+        </div>
+      </div>
+
+      <div class="build-item">
+        <div class="build-icon" style="background:#f5f3ff;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="14" width="4" height="7" fill="#7c3aed"/>
+            <rect x="10" y="9" width="4" height="12" fill="#7c3aed"/>
+            <rect x="17" y="3" width="4" height="18" fill="#a78bfa"/>
+          </svg>
+        </div>
+        <div>
+          <div class="build-title">Research Workflows</div>
+          <div class="build-desc">Smart money signals + web search results paid per query. Every call has a permanent verifiable receipt on Base.</div>
+        </div>
+      </div>
+
+      <div class="build-item">
+        <div class="build-icon" style="background:#ecfdf5;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="8" height="8" rx="2" fill="#059669"/>
+            <rect x="13" y="3" width="8" height="8" rx="2" fill="#a7f3d0"/>
+            <rect x="3" y="13" width="8" height="8" rx="2" fill="#a7f3d0"/>
+            <rect x="13" y="13" width="8" height="8" rx="2" fill="#059669"/>
+          </svg>
+        </div>
+        <div>
+          <div class="build-title">No-Key API Access</div>
+          <div class="build-desc">Call any x402 API without managing keys, billing dashboards, or rate limit accounts. Just USDC in your vault.</div>
+        </div>
+      </div>
+
+      <div class="build-item">
+        <div class="build-icon" style="background:#fffbeb;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="11" width="18" height="3" fill="#d97706"/>
+            <rect x="3" y="3" width="3" height="18" fill="#fde68a"/>
+            <rect x="18" y="3" width="3" height="18" fill="#fde68a"/>
+            <rect x="8" y="7" width="8" height="3" fill="#d97706"/>
+            <rect x="8" y="14" width="8" height="3" fill="#d97706"/>
+          </svg>
+        </div>
+        <div>
+          <div class="build-title">Bot Pipelines</div>
+          <div class="build-desc">Route any bot or script through @gitbankbot to access the x402 ecosystem. 10,000+ paid API endpoints and growing.</div>
+        </div>
+      </div>
+
+      <!-- Providers -->
+      <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:20px;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#9ca3af;margin-bottom:14px;">Live Named Providers</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8f9fc;border-radius:12px;border:1.5px solid #e5e7eb;">
+            <img src="/logo-exa.png" height="28" style="height:28px;border-radius:4px;flex-shrink:0;" alt="Exa">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f172a;">@ExaAILabs</div>
+              <div style="font-size:12px;color:#6b7280;">AI-native web search</div>
+            </div>
+            <div style="margin-left:auto;font-size:12px;color:#059669;font-weight:700;">$0.007/req</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8f9fc;border-radius:12px;border:1.5px solid #e5e7eb;">
+            <img src="/logo-nansen.png" height="28" style="height:28px;border-radius:4px;flex-shrink:0;" alt="Nansen">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f172a;">@nansen_ai</div>
+              <div style="font-size:12px;color:#6b7280;">Smart money flows, all chains</div>
+            </div>
+            <div style="margin-left:auto;font-size:12px;color:#059669;font-weight:700;">$0.05/req</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#f8f9fc;border-radius:12px;border:1.5px dashed #d1d5db;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#d1d5db;flex-shrink:0;"></div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:#9ca3af;">+ Any x402 URL</div>
+              <div style="font-size:12px;color:#d1d5db;">direct endpoint support</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <span>gitbank.io</span>
+  <span class="footer-sep">·</span>
+  <span>@gitbankbot on X</span>
+  <span class="footer-sep">·</span>
+  <span>Base Mainnet</span>
+  <span class="footer-sep">·</span>
+  <span style="margin-left:auto;display:flex;gap:10px;">
+    <span class="pill" style="background:#d1fae5;color:#065f46;border-color:#a7f3d0;">EIP-3009 gasless</span>
+    <span class="pill" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;">x402 v2</span>
+    <span class="pill" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe;">USDC on Base</span>
+  </span>
+</div>
+
+<script>
+  function applyScale() {
+    var scale = window.innerWidth / 2800;
+    document.body.style.transform = 'scale(' + scale + ')';
+    document.body.style.height = (document.body.scrollHeight * scale) + 'px';
+    document.documentElement.style.height = (document.body.scrollHeight * scale) + 'px';
+  }
+  applyScale();
+  window.addEventListener('resize', applyScale);
+</script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=2560" />
+<title>Gitbank Security vs AI Agent Hacks</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 2560px;
+    height: 1440px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    background: #f0f2f9;
+    position: relative;
+  }
+
+  /* ── PIXEL DECORATIONS ── */
+  .px-grid {
+    position: absolute;
+    display: grid;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .px-c  { background: #2323f5; border-radius: 2px; }
+  .px-r  { background: #e53535; border-radius: 2px; }
+  .px-g  { background: #16a34a; border-radius: 2px; }
+  .px-e  { background: transparent; }
+
+  /* top-left blue dots */
+  .pg-tl { top: 70px; left: 70px;
+    grid-template-columns: repeat(6,12px); grid-template-rows: repeat(6,12px);
+    gap: 5px; opacity: 0.11; }
+
+  /* bottom-right blue dots */
+  .pg-br { bottom: 60px; right: 60px;
+    grid-template-columns: repeat(5,10px); grid-template-rows: repeat(5,10px);
+    gap: 5px; opacity: 0.10; }
+
+  /* mid-left red dots (danger zone) */
+  .pg-ml { top: 580px; left: 870px;
+    grid-template-columns: repeat(4,10px); grid-template-rows: repeat(4,10px);
+    gap: 5px; opacity: 0.12; }
+
+  /* mid-right green dots (safe zone) */
+  .pg-mr { bottom: 200px; right: 870px;
+    grid-template-columns: repeat(4,10px); grid-template-rows: repeat(4,10px);
+    gap: 5px; opacity: 0.12; }
+
+  .px-cross {
+    position: absolute; pointer-events: none; z-index: 0;
+  }
+  .px-cross::before, .px-cross::after {
+    content: ''; position: absolute; border-radius: 2px;
+  }
+  .px-cross.blue::before  { width: 7px; height: 26px; top: -11px; left: 0; background: #2323f5; }
+  .px-cross.blue::after   { width: 26px; height: 7px; top: 0; left: -11px; background: #2323f5; }
+  .px-cross.red::before   { width: 7px; height: 26px; top: -11px; left: 0; background: #e53535; }
+  .px-cross.red::after    { width: 26px; height: 7px; top: 0; left: -11px; background: #e53535; }
+  .px-cross.green::before { width: 7px; height: 26px; top: -11px; left: 0; background: #16a34a; }
+  .px-cross.green::after  { width: 26px; height: 7px; top: 0; left: -11px; background: #16a34a; }
+
+  .px-dot {
+    position: absolute; border-radius: 2px; pointer-events: none; z-index: 0;
+  }
+
+  /* ── 3-COLUMN LAYOUT ── */
+  .layout {
+    position: absolute; inset: 0;
+    display: grid;
+    grid-template-columns: 820px 1fr 820px;
+    z-index: 1;
+  }
+
+  /* ══ COL 1: STATS / HERO ══ */
+  .col-hero {
+    padding: 80px 56px 80px 80px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    border-right: 2px solid rgba(35,35,245,0.08);
+  }
+
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand img { width: 56px; height: 56px; border-radius: 14px; }
+  .brand-name { font-size: 28px; font-weight: 800; color: #0a0a0a; letter-spacing: -0.5px; }
+
+  .hero-mid { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 19px; font-weight: 700; letter-spacing: 3.5px;
+    text-transform: uppercase; color: #e53535;
+  }
+  .eyebrow-dot { width: 8px; height: 8px; background: #e53535; border-radius: 0; }
+
+  .headline {
+    font-size: 72px; font-weight: 900;
+    line-height: 1.04; letter-spacing: -3.5px; color: #0a0a0a;
+  }
+  .headline .hl-red  { color: #e53535; }
+  .headline .hl-blue { color: #2323f5; }
+
+  .stat-row {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .stat-card {
+    background: #fff;
+    border: 2px solid #e4e8f5;
+    border-left: 5px solid #e53535;
+    border-radius: 14px;
+    padding: 18px 22px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-card.green-border { border-left-color: #16a34a; }
+  .stat-num {
+    font-size: 34px; font-weight: 900; letter-spacing: -1px; color: #0a0a0a;
+  }
+  .stat-num span { font-size: 20px; font-weight: 700; color: #e53535; margin-left: 6px; }
+  .stat-num .g { color: #16a34a; }
+  .stat-desc { font-size: 17px; color: #555; font-weight: 400; line-height: 1.4; }
+  .stat-source { font-size: 14px; color: #999; font-weight: 500; margin-top: 2px; }
+
+  .hero-foot {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .foot-pill {
+    background: #e53535; color: #fff;
+    font-size: 18px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding: 10px 22px; border-radius: 999px;
+  }
+  .foot-pill-ghost {
+    background: #eff1fc; color: #2323f5;
+    font-size: 18px; font-weight: 700;
+    padding: 10px 22px; border-radius: 999px;
+    border: 2px solid #c5cdf5;
+  }
+
+  /* ══ COL 2: ATTACKS ══ */
+  .col-attacks {
+    padding: 80px 48px;
+    display: flex; flex-direction: column; gap: 0;
+    border-right: 2px solid rgba(35,35,245,0.08);
+    overflow: hidden;
+  }
+
+  .col-label {
+    font-size: 18px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .col-label .lbl-dot { width: 6px; height: 6px; border-radius: 0; }
+  .col-label.red .lbl-dot { background: #e53535; }
+  .col-label.red { color: #e53535; }
+  .col-label.green .lbl-dot { background: #16a34a; }
+  .col-label.green { color: #16a34a; }
+
+  /* divider between top and bottom halves */
+  .col-divider {
+    height: 2px; background: rgba(35,35,245,0.08);
+    margin: 24px 0;
+  }
+
+  .attack-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .atk {
+    background: #fff;
+    border: 2px solid #fde8e8;
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .atk-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: #fde8e8; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .atk-icon svg { width: 22px; height: 22px; }
+  .atk-title { font-size: 20px; font-weight: 800; color: #0a0a0a; margin-bottom: 4px; }
+  .atk-desc  { font-size: 16px; color: #666; line-height: 1.45; }
+  .atk-badge {
+    display: inline-block; margin-top: 6px;
+    background: #fde8e8; color: #e53535;
+    font-size: 14px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
+  }
+
+  /* defense cards (bottom half col 2) */
+  .def-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .def {
+    background: #fff;
+    border: 2px solid #d1fae5;
+    border-radius: 16px;
+    padding: 20px 22px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .def-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: #d1fae5; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .def-icon svg { width: 22px; height: 22px; }
+  .def-title { font-size: 20px; font-weight: 800; color: #0a0a0a; margin-bottom: 4px; }
+  .def-desc  { font-size: 16px; color: #666; line-height: 1.45; }
+  .def-badge {
+    display: inline-block; margin-top: 6px;
+    background: #d1fae5; color: #16a34a;
+    font-size: 14px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px;
+  }
+
+  /* ══ COL 3: GITBANK SHIELD ══ */
+  .col-shield {
+    padding: 80px 80px 80px 52px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .shield-card {
+    background: #2323f5;
+    border-radius: 26px;
+    padding: 48px 44px;
+    flex: 1;
+    display: flex; flex-direction: column; gap: 0;
+    position: relative; overflow: hidden;
+  }
+
+  /* pixel grid overlay on card */
+  .shield-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+
+  /* pixel grid on card */
+  .card-px-tr {
+    position: absolute; top: 36px; right: 40px; z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(4,11px); grid-template-rows: repeat(4,11px);
+    gap: 5px; opacity: 0.25;
+  }
+  .card-px-bl {
+    position: absolute; bottom: 36px; left: 40px; z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(3,9px); grid-template-rows: repeat(3,9px);
+    gap: 5px; opacity: 0.20;
+  }
+  .pw { background: #fff; }
+  .pn { background: transparent; }
+
+  /* blur watermark */
+  .card-wm {
+    position: absolute; bottom: -60px; right: -60px;
+    width: 480px; height: 480px;
+    filter: blur(52px) brightness(0) invert(1);
+    opacity: 0.12; pointer-events: none; z-index: 1;
+  }
+  .card-wm img { width: 100%; height: 100%; object-fit: contain; }
+
+  .shield-top { position: relative; z-index: 3; margin-bottom: 28px; }
+
+  .shield-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.14);
+    border: 2px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    padding: 9px 20px;
+    color: #fff; font-size: 18px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    width: fit-content; margin-bottom: 20px;
+  }
+  .shield-badge-dot { width: 8px; height: 8px; background: #fff; border-radius: 0; }
+
+  .shield-title {
+    font-size: 52px; font-weight: 900;
+    color: #fff; line-height: 1.06; letter-spacing: -2.5px;
+  }
+
+  .shield-items {
+    position: relative; z-index: 3;
+    display: flex; flex-direction: column; gap: 12px;
+    flex: 1;
+  }
+
+  .si {
+    background: rgba(255,255,255,0.10);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .si-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.2);
+    color: #fff; font-size: 16px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .si-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+  .si-desc  { font-size: 15px; color: rgba(255,255,255,0.78); line-height: 1.4; }
+  .si-tag {
+    display: inline-block; margin-top: 5px;
+    background: rgba(255,255,255,0.15);
+    color: #fff; font-size: 13px; font-weight: 700;
+    padding: 2px 10px; border-radius: 999px;
+  }
+
+  .shield-foot {
+    position: relative; z-index: 3; margin-top: 20px;
+  }
+  .shield-cta {
+    background: #fff; color: #2323f5;
+    font-size: 22px; font-weight: 800;
+    padding: 18px 28px; border-radius: 12px;
+    text-align: center; letter-spacing: -0.3px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- PIXEL DECORATIONS -->
+  <div class="px-grid pg-tl">
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+  </div>
+
+  <div class="px-grid pg-br">
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+  </div>
+
+  <div class="px-grid pg-ml">
+    <div class="px-r"></div><div class="px-e"></div><div class="px-r"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-r"></div><div class="px-e"></div><div class="px-r"></div>
+    <div class="px-r"></div><div class="px-e"></div><div class="px-r"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-r"></div><div class="px-e"></div><div class="px-r"></div>
+  </div>
+
+  <div class="px-grid pg-mr">
+    <div class="px-g"></div><div class="px-e"></div><div class="px-g"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-g"></div><div class="px-e"></div><div class="px-g"></div>
+    <div class="px-g"></div><div class="px-e"></div><div class="px-g"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-g"></div><div class="px-e"></div><div class="px-g"></div>
+  </div>
+
+  <div class="px-cross red" style="top:290px;left:840px;opacity:0.18;transform:scale(0.85)"></div>
+  <div class="px-cross red" style="top:900px;left:820px;opacity:0.13;transform:scale(0.65)"></div>
+  <div class="px-cross green" style="top:260px;right:840px;opacity:0.16;transform:scale(0.75)"></div>
+  <div class="px-cross blue" style="bottom:200px;left:400px;opacity:0.12;transform:scale(0.6)"></div>
+  <div class="px-dot" style="width:14px;height:14px;top:520px;left:780px;background:#e53535;opacity:0.10;"></div>
+  <div class="px-dot" style="width:18px;height:18px;bottom:260px;right:830px;background:#16a34a;opacity:0.10;"></div>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- COL 1: HERO + STATS -->
+    <div class="col-hero">
+      <div class="brand">
+        <img src="/gitbank-logo.png" alt="Gitbank" />
+        <span class="brand-name">Gitbank</span>
+      </div>
+
+      <div class="hero-mid">
+        <div>
+          <div class="eyebrow"><div class="eyebrow-dot"></div>Security Report — June 2026</div>
+          <div class="headline">AI wallets<br />are being<br /><span class="hl-red">drained.</span></div>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-num">$200K <span>stolen</span></div>
+            <div class="stat-desc">Grok x Bankrbot — one X reply in Morse code. No private key needed. Prompt injection only.</div>
+            <div class="stat-source">Source: Breitbart, Dexerto — May 4, 2026</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">28.65M <span>keys leaked</span></div>
+            <div class="stat-desc">Hardcoded secrets on public GitHub in 2025 alone. AI-service credentials up +81% year-over-year.</div>
+            <div class="stat-source">Source: GitGuardian State of Secrets Sprawl 2026</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">$3.4B <span>stolen in 2025</span></div>
+            <div class="stat-desc">Total crypto hacked in 2025. AI-assisted attacks cited as primary growth driver.</div>
+            <div class="stat-source">Source: Chainalysis 2026 Report</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-foot">
+        <div class="foot-pill">Real Incidents</div>
+        <div class="foot-pill-ghost">Verified Sources</div>
+      </div>
+    </div>
+
+    <!-- COL 2: ATTACKS + DEFENSES -->
+    <div class="col-attacks">
+
+      <div class="col-label red"><div class="lbl-dot"></div>How hot wallets get drained</div>
+
+      <div class="attack-list">
+        <div class="atk">
+          <div class="atk-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l1.5 4.5H18l-3.75 2.75 1.5 4.75L12 11.25 8.25 14l1.5-4.75L6 6.5h4.5L12 2z" fill="#e53535"/>
+            </svg>
+          </div>
+          <div>
+            <div class="atk-title">Prompt injection</div>
+            <div class="atk-desc">Attacker crafts a malicious input — Morse code, jailbreak, indirect instruction — that tricks the AI into authorizing a transfer. No key needed.</div>
+            <span class="atk-badge">Grok $200K — May 2026</span>
+          </div>
+        </div>
+
+        <div class="atk">
+          <div class="atk-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="11" width="18" height="11" rx="2" stroke="#e53535" stroke-width="2.2" fill="none"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#e53535" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <line x1="12" y1="15" x2="12" y2="18" stroke="#e53535" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="atk-title">Leaked private key</div>
+            <div class="atk-desc">28.6M secrets exposed on GitHub in 2025. One leaked .env file gives full wallet access. Hot wallet = key is the only lock.</div>
+            <span class="atk-badge">28.65M leaked — GitGuardian 2026</span>
+          </div>
+        </div>
+
+        <div class="atk">
+          <div class="atk-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#e53535" stroke-width="2.2" fill="none"/>
+              <path d="M8 12h8M12 8l4 4-4 4" stroke="#e53535" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="atk-title">Malicious agent router</div>
+            <div class="atk-desc">Attacker intercepts transaction routing between AI agents, redirects fund destination before signing. Any agent that trusts its own AI output is exposed.</div>
+            <span class="atk-badge">New 2026 threat vector</span>
+          </div>
+        </div>
+
+        <div class="atk">
+          <div class="atk-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 4l16 16M4 20L20 4" stroke="#e53535" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="atk-title">ERC-20 approval drain</div>
+            <div class="atk-desc">Phishing site gets user to approve unlimited spend. Standard transferFrom drains wallet instantly. Zero friction for attacker.</div>
+            <span class="atk-badge">Most common DeFi exploit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-divider"></div>
+
+      <div class="col-label green"><div class="lbl-dot"></div>Gitbank — same attacks, different result</div>
+
+      <div class="def-list">
+        <div class="def">
+          <div class="def-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6L12 2z" fill="#16a34a"/>
+              <path d="M8.5 12l2.5 2.5 4.5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="def-title">Prompt injection blocked</div>
+            <div class="def-desc">Relayer verifies caller's live X identity independently before issuing Signature 2. A manipulated AI is not the vault owner. Relayer refuses.</div>
+            <span class="def-badge">Attack fails</span>
+          </div>
+        </div>
+
+        <div class="def">
+          <div class="def-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6L12 2z" fill="#16a34a"/>
+              <path d="M8.5 12l2.5 2.5 4.5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="def-title">Key leak is useless</div>
+            <div class="def-desc">Signature 1 alone is not enough. Smart contract requires Signature 2 from the relayer. Relayer requires live identity. Key without identity = nothing.</div>
+            <span class="def-badge">Attack fails</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COL 3: GITBANK SHIELD CARD -->
+    <div class="col-shield">
+      <div class="shield-card">
+
+        <div class="card-px-tr">
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div><div class="pn"></div>
+          <div class="pn"></div><div class="pw"></div><div class="pn"></div><div class="pw"></div>
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div><div class="pn"></div>
+          <div class="pn"></div><div class="pw"></div><div class="pn"></div><div class="pw"></div>
+        </div>
+        <div class="card-px-bl">
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div>
+          <div class="pn"></div><div class="pw"></div><div class="pn"></div>
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div>
+        </div>
+        <div class="card-wm"><img src="/gitbank-logo.png" alt="" /></div>
+
+        <div class="shield-top">
+          <div class="shield-badge"><div class="shield-badge-dot"></div>Dual-Signature Architecture</div>
+          <div class="shield-title">The key is<br />not the<br />only lock.</div>
+        </div>
+
+        <div class="shield-items">
+          <div class="si">
+            <div class="si-num">1</div>
+            <div>
+              <div class="si-title">Execution keypair</div>
+              <div class="si-desc">Per-user. Encrypted AES-256-GCM at rest. Signs the transaction payload. Alone, it does nothing.</div>
+              <span class="si-tag">Sig 1 of 2</span>
+            </div>
+          </div>
+          <div class="si">
+            <div class="si-num">2</div>
+            <div>
+              <div class="si-title">Relayer authorization</div>
+              <div class="si-desc">Short-lived ECDSA from server. Issued only after verifying caller's live GitHub or X identity. 5-min deadline. One-time use.</div>
+              <span class="si-tag">Sig 2 of 2</span>
+            </div>
+          </div>
+          <div class="si">
+            <div class="si-num">3</div>
+            <div>
+              <div class="si-title">Soul-bound gitTokens</div>
+              <div class="si-desc">Non-transferable ERC-20. No approve function. No transferFrom. ERC-20 drain attacks have no surface to exploit.</div>
+              <span class="si-tag">Zero approval vector</span>
+            </div>
+          </div>
+          <div class="si">
+            <div class="si-num">4</div>
+            <div>
+              <div class="si-title">Open Hack Challenge</div>
+              <div class="si-desc">Tomorrow: live private key, funded vault on Base mainnet. Try any method. If you drain it, keep it.</div>
+              <span class="si-tag">Challenge drops tomorrow</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="shield-foot">
+          <div class="shield-cta">gitbank.io — Base Mainnet</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

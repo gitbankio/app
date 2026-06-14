@@ -1,0 +1,19 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="90" cy="90" r="90" fill="#2222FF"/>
+  <!-- cat head white shape with pointed ears and V notch -->
+  <path d="
+    M90 22
+    L65 52 L55 38 L38 70
+    Q34 80 34 92
+    Q34 138 90 145
+    Q146 138 146 92
+    Q146 80 142 70
+    L125 38 L115 52
+    Z
+  " fill="white"/>
+  <!-- V notch between ears -->
+  <path d="M90 22 L75 56 L90 62 L105 56 Z" fill="#2222FF"/>
+  <!-- eyes -->
+  <circle cx="70" cy="105" r="14" fill="#2222FF"/>
+  <circle cx="110" cy="105" r="14" fill="#2222FF"/>
+</svg>

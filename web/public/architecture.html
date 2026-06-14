@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gitbank — System Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:    #2655f4;
+    --blue-lt: #e8eeff;
+    --blue-md: #c5cefd;
+    --green:   #16a34a;
+    --green-lt:#dcfce7;
+    --orange:  #c45c00;
+    --orange-lt:#fff7ed;
+    --purple:  #6d28d9;
+    --purple-lt:#f5f3ff;
+    --red-lt:  #fff0f3;
+    --red:     #be123c;
+    --ink:     #0d0d0d;
+    --ink2:    #374151;
+    --ink3:    #6b7280;
+    --border:  #e5e7eb;
+    --bg:      #e8edff;
+    --card:    #ffffff;
+    --mono:    'JetBrains Mono', monospace;
+    --sans:    'Inter', sans-serif;
+    --r:       20px;
+    --r-sm:    12px;
+  }
+
+  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 40px 24px 60px;
+  }
+
+  .page {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ───── HERO ───── */
+  .hero {
+    background: var(--card);
+    border-radius: 28px;
+    border: 1px solid var(--border);
+    padding: 48px 56px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-orb {
+    position: absolute;
+    right: -40px; top: -80px;
+    width: 440px; height: 440px;
+    background: radial-gradient(circle at 60% 40%, #3b6fff 0%, #6b8fff 40%, transparent 75%);
+    opacity: 0.18;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  .hero-orb2 {
+    position: absolute;
+    right: 200px; bottom: -100px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, #2655f4 0%, transparent 70%);
+    opacity: 0.09;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .logo-img {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .logo-name {
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -1.5px;
+    line-height: 1;
+  }
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink3);
+    margin-bottom: 20px;
+  }
+  .badge-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.4px;
+    border: 1px solid transparent;
+  }
+  .badge-blue   { background: var(--blue-lt);   color: var(--blue);   border-color: var(--blue-md); }
+  .badge-green  { background: var(--green-lt);  color: var(--green);  border-color: #bbf7d0; }
+  .badge-ink    { background: #f3f4f6; color: var(--ink2); border-color: #e5e7eb; }
+
+  .hero-right {
+    background: linear-gradient(135deg, #1e3aff 0%, #2655f4 50%, #4a7aff 100%);
+    border-radius: 18px;
+    padding: 32px 28px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-headline {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: #fff;
+    line-height: 1.65;
+    opacity: 0.95;
+  }
+
+  /* ───── SECTION CARD ───── */
+  .card {
+    background: var(--card);
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    padding: 40px 48px;
+  }
+
+  .sec-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sec-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ───── FLOW ───── */
+  .flow-wrap {
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-width: max-content;
+  }
+
+  .flow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .flow-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 18px;
+    border-radius: var(--r-sm);
+    min-width: 108px;
+    text-align: center;
+    border: 1.5px solid transparent;
+    cursor: default;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .flow-node:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .node-icon {
+    width: 32px; height: 32px;
+    flex-shrink: 0;
+  }
+  .node-lbl {
+    font-family: var(--mono);
+    font-size: 0.63rem;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .node-sub {
+    font-family: var(--mono);
+    font-size: 0.57rem;
+    color: var(--ink3);
+    line-height: 1.35;
+  }
+
+  .n-platform { background: var(--blue-lt);   border-color: var(--blue-md); }
+  .n-platform .node-lbl { color: var(--blue); }
+  .n-api      { background: var(--orange-lt); border-color: #fdd9a8; }
+  .n-api .node-lbl      { color: var(--orange); }
+  .n-nlp      { background: var(--purple-lt); border-color: #ddd6fe; }
+  .n-nlp .node-lbl      { color: var(--purple); }
+  .n-router   { background: var(--green-lt);  border-color: #bbf7d0; }
+  .n-router .node-lbl   { color: var(--green); }
+  .n-relayer  { background: var(--red-lt);    border-color: #fecdd3; }
+  .n-relayer .node-lbl  { color: var(--red); }
+  .n-chain    { background: var(--ink);       border-color: #333; }
+  .n-chain .node-lbl    { color: #fff; }
+  .n-chain .node-sub    { color: #9ca3af; }
+  .n-receipt  { background: var(--blue-lt);   border-color: var(--blue-md); }
+  .n-receipt .node-lbl  { color: var(--blue); }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    margin-top: 28px;
+    color: #d1d5db;
+    flex-shrink: 0;
+  }
+  .flow-stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .flow-divider {
+    width: 1px;
+    height: 10px;
+    background: #d1d5db;
+  }
+
+  /* ───── BRANCHES ───── */
+  .branches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 32px;
+  }
+  .branch {
+    border-radius: var(--r-sm);
+    padding: 18px 18px 16px;
+    border: 1.5px solid transparent;
+  }
+  .branch-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .branch-head svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .branch-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .cmd-list { display: flex; flex-direction: column; gap: 4px; }
+  .cmd {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: var(--ink2);
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 3px 7px;
+    border-radius: 5px;
+    line-height: 1.4;
+  }
+
+  .b-finance { background: var(--blue-lt);   border-color: var(--blue-md); }
+  .b-finance .branch-title { color: var(--blue); }
+  .b-project { background: var(--green-lt);  border-color: #bbf7d0; }
+  .b-project .branch-title { color: var(--green); }
+  .b-defi    { background: var(--orange-lt); border-color: #fdd9a8; }
+  .b-defi .branch-title    { color: var(--orange); }
+  .b-build   { background: var(--purple-lt); border-color: #ddd6fe; }
+  .b-build .branch-title   { color: var(--purple); }
+
+  /* ───── SECURITY ───── */
+  .sec-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .sec-item {
+    background: var(--ink);
+    border-radius: var(--r-sm);
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sec-icon { width: 22px; height: 22px; }
+  .sec-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .sec-desc {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: #9ca3af;
+    line-height: 1.5;
+  }
+
+  /* ───── CONTRACTS ───── */
+  .nets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 32px;
+  }
+  .net-card {
+    background: #f9fafb;
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 20px 22px;
+  }
+  .net-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green  { background: #16a34a; box-shadow: 0 0 0 2px #dcfce7; }
+  .dot-orange { background: #f59e0b; box-shadow: 0 0 0 2px #fef3c7; }
+  .net-name {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--ink2);
+  }
+  .net-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .net-row:last-child { border-bottom: none; }
+  .net-key {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--ink3);
+    flex-shrink: 0;
+  }
+  .net-val {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--ink);
+    word-break: break-all;
+    text-align: right;
+  }
+
+  /* ───── BOTTOM ───── */
+  .bottom {
+    background: var(--ink);
+    border-radius: 28px;
+    border: 1px solid #222;
+    padding: 40px 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .bottom-orb {
+    position: absolute;
+    right: -60px; top: -80px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, #2655f4 0%, transparent 65%);
+    opacity: 0.22;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  .bottom-orb2 {
+    position: absolute;
+    left: 30%; bottom: -80px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, #6b8fff 0%, transparent 65%);
+    opacity: 0.12;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  .bottom-tagline {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 2;
+    max-width: 400px;
+  }
+  .bottom-tagline span { color: #6b8fff; }
+  .stats {
+    display: flex;
+    gap: 36px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; }
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .stat-lbl {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding: 32px 24px; }
+    .card { padding: 32px 24px; }
+    .branches { grid-template-columns: 1fr 1fr; }
+    .sec-grid { grid-template-columns: 1fr 1fr; }
+    .nets { grid-template-columns: 1fr; }
+    .bottom { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-orb2"></div>
+    <div style="position:relative;z-index:2;">
+      <div class="logo-row">
+        <img src="/gitbank-logo.png" alt="Gitbank" class="logo-img" />
+        <span class="logo-name">Gitbank</span>
+      </div>
+      <p class="hero-sub">IssueOps &bull; Web3 &bull; Base L2 &bull; Soul-bound Vaults</p>
+      <div class="badge-row">
+        <span class="badge badge-blue">Base Mainnet</span>
+        <span class="badge badge-green">Live</span>
+        <span class="badge badge-ink">Apache 2.0</span>
+        <span class="badge badge-blue">EIP-1167</span>
+        <span class="badge badge-blue">Meta-tx</span>
+        <span class="badge badge-ink">2-sig</span>
+      </div>
+    </div>
+    <div class="hero-right" style="position:relative;z-index:2;">
+      <p class="hero-headline">Your Contributors Shipped.<br>They Should Get Paid in<br>Seconds, Not Days.</p>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="card">
+    <div class="sec-label">System Architecture</div>
+    <div class="flow-wrap">
+      <div class="flow">
+
+        <!-- Platforms (stacked) -->
+        <div class="flow-col">
+          <div class="flow-stacked">
+            <div class="flow-node n-platform">
+              <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#2655f4">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+              </svg>
+              <span class="node-lbl">GitHub</span>
+              <span class="node-sub">Issues / PRs<br>Discussions</span>
+            </div>
+            <div class="flow-divider"></div>
+            <div class="flow-node n-platform" style="min-width:108px;">
+              <svg class="node-icon" viewBox="0 0 24 24" fill="currentColor" color="#2655f4">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.74l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.912-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              <span class="node-lbl">X (Twitter)</span>
+              <span class="node-sub">Mentions<br>Replies</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <!-- Webhook -->
+        <div class="flow-col">
+          <div class="flow-node n-api">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#c45c00">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            <span class="node-lbl">Webhook</span>
+            <span class="node-sub">HMAC-SHA256<br>verified</span>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <!-- NLP -->
+        <div class="flow-col">
+          <div class="flow-node n-nlp">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#6d28d9">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="node-lbl">Claude Haiku</span>
+            <span class="node-sub">NLP intent<br>extraction</span>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <!-- Router -->
+        <div class="flow-col">
+          <div class="flow-node n-router">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#16a34a">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+            </svg>
+            <span class="node-lbl">Command<br>Router</span>
+            <span class="node-sub">vault / project<br>token / build</span>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <!-- Relayer -->
+        <div class="flow-col">
+          <div class="flow-node n-relayer">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#be123c">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span class="node-lbl">Relayer</span>
+            <span class="node-sub">ownerSig +<br>relayerSig</span>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <!-- GitVault -->
+        <div class="flow-col">
+          <div class="flow-node n-chain">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" color="#fff">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke="#93a8ff" fill="none"/>
+            </svg>
+            <span class="node-lbl">GitVault</span>
+            <span class="node-sub">Base L2<br>0 gas / user</span>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 6l4 4-4 4" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+
+        <!-- Receipt -->
+        <div class="flow-col">
+          <div class="flow-node n-receipt">
+            <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" color="#2655f4">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span class="node-lbl">Receipt</span>
+            <span class="node-sub">tx hash +<br>Basescan</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COMMAND BRANCHES -->
+    <div class="sec-label" style="margin-top:40px;">Command Branches</div>
+    <div class="branches">
+
+      <div class="branch b-finance">
+        <div class="branch-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="#2655f4"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          <span class="branch-title">Vault Finance</span>
+        </div>
+        <div class="cmd-list">
+          <span class="cmd">@gitbankbot deposit 50 USDC</span>
+          <span class="cmd">@gitbankbot withdraw 20 WETH to 0x...</span>
+          <span class="cmd">@gitbankbot swap 0.1 WETH to USDC</span>
+          <span class="cmd">@gitbankbot send 10 USDC to @alice</span>
+          <span class="cmd">@gitbankbot balance</span>
+        </div>
+      </div>
+
+      <div class="branch b-project">
+        <div class="branch-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="#16a34a"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span class="branch-title">Project Ops</span>
+        </div>
+        <div class="cmd-list">
+          <span class="cmd">@gitbankbot create project 'Sprint 1'</span>
+          <span class="cmd">@gitbankbot assign task @alice 80 USDC</span>
+          <span class="cmd">@gitbankbot cancel task reclaim bounty</span>
+          <span class="cmd">@gitbankbot project status Sprint 1</span>
+          <span class="cmd">PR merge &#x2192; auto payout</span>
+        </div>
+      </div>
+
+      <div class="branch b-defi">
+        <div class="branch-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="#c45c00"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="branch-title">DeFi / Token Launch</span>
+        </div>
+        <div class="cmd-list">
+          <span class="cmd">@gitbankx launch token $SYM supply 1M</span>
+          <span class="cmd">@gitbankx add liquidity $SYM 500 USDC</span>
+          <span class="cmd">@gitbankx swap 10 USDC to $SYM</span>
+          <span class="cmd">@gitbankx airdrop $SYM 100 to @user</span>
+          <span class="cmd">@gitbankx price $SYM</span>
+        </div>
+      </div>
+
+      <div class="branch b-build">
+        <div class="branch-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" color="#6d28d9"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span class="branch-title">AutoGit / Build</span>
+        </div>
+        <div class="cmd-list">
+          <span class="cmd">@gitbankx build a leaderboard for $SYM</span>
+          <span class="cmd">@gitbankx build a tip page for @alice</span>
+          <span class="cmd">@gitbankx update: add dark mode</span>
+          <span class="cmd">&#x2192; AI generates React + Vite app</span>
+          <span class="cmd">&#x2192; live GitHub Pages in 60s</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECURITY -->
+    <div class="sec-label" style="margin-top:40px;">Security Model</div>
+    <div class="sec-grid">
+
+      <div class="sec-item">
+        <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="#6b8fff" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="sec-title">2-Sig Meta-tx</span>
+        <span class="sec-desc">ownerSig + relayerSig required on every call. Neither party alone can execute.</span>
+      </div>
+
+      <div class="sec-item">
+        <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="#6b8fff" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="sec-title">Soul-Bond</span>
+        <span class="sec-desc">Vault tied to permanent GitHub / X user ID. Survives any key rotation or account rename.</span>
+      </div>
+
+      <div class="sec-item">
+        <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="#6b8fff" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+        <span class="sec-title">Swap Whitelist</span>
+        <span class="sec-desc">On-chain enforcement: only WETH + USDC accepted as swap output. No malicious token injection.</span>
+      </div>
+
+      <div class="sec-item">
+        <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="#6b8fff" stroke-width="1.8"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <span class="sec-title">2-Step Transfer</span>
+        <span class="sec-desc">initTransfer (commit) then finalizeTransfer (reveal). Front-runners cannot extract value.</span>
+      </div>
+
+      <div class="sec-item">
+        <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="#6b8fff" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="sec-title">Soul-Bound ERC-20</span>
+        <span class="sec-desc">gitUSDC / gitWETH have transfers + approvals disabled. No approval exploit possible.</span>
+      </div>
+
+    </div>
+
+    <!-- CONTRACTS -->
+    <div class="sec-label" style="margin-top:40px;">Deployed Contracts</div>
+    <div class="nets">
+
+      <div class="net-card">
+        <div class="net-head">
+          <span class="dot dot-green"></span>
+          <span class="net-name">Base Mainnet &mdash; chainId 8453</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">GitVaultFactory</span>
+          <span class="net-val">0xAA0a4ff46733EBaE8E658642A1314f18980fc77B</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">GitVault impl</span>
+          <span class="net-val">0x3602197A1b445AA4746c47C9D69436d9B7cF5dc9</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">Deployer / Fee</span>
+          <span class="net-val">0x1e660A9A1f1F08AFEF9c03c96D66260122464CF2</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">relayerSigner</span>
+          <span class="net-val">0x750E6E4C5DF3483a6235D3DDAB4087266D6EF510</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">DEX Router</span>
+          <span class="net-val">Uniswap v3 SwapRouter02 &mdash; 0.05% pool</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">USDC</span>
+          <span class="net-val">0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">WETH</span>
+          <span class="net-val">0x4200000000000000000000000000000000000006</span>
+        </div>
+      </div>
+
+      <div class="net-card">
+        <div class="net-head">
+          <span class="dot dot-orange"></span>
+          <span class="net-name">Base Sepolia &mdash; chainId 84532</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">GitVaultFactory</span>
+          <span class="net-val">0xe492ABc6ddFfa154451fC7c7E1CE6BEac826b54A</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">GitVault impl</span>
+          <span class="net-val">0xa44532Ff0647a2016135843659576E06E8171847</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">Deployer / Fee</span>
+          <span class="net-val">0x1e660A9A1f1F08AFEF9c03c96D66260122464CF2</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">relayerSigner</span>
+          <span class="net-val">0x750E6E4C5DF3483a6235D3DDAB4087266D6EF510</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">DEX Router</span>
+          <span class="net-val">0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">USDC</span>
+          <span class="net-val">0x036CbD53842c5426634e7929541eC2318f3dCF7e</span>
+        </div>
+        <div class="net-row">
+          <span class="net-key">WETH</span>
+          <span class="net-val">0x4200000000000000000000000000000000000006</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="bottom">
+    <div class="bottom-orb"></div>
+    <div class="bottom-orb2"></div>
+    <div class="bottom-tagline">One vault. Every platform.<br><span>No wallet required.</span></div>
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-val">0</span>
+        <span class="stat-lbl">gas for users</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">2-sig</span>
+        <span class="stat-lbl">meta-tx model</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">Base L2</span>
+        <span class="stat-lbl">chain</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">EIP-1167</span>
+        <span class="stat-lbl">vault clones</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">Apache 2.0</span>
+        <span class="stat-lbl">license</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=2560" />
+<title>Gitbank Security</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 2560px;
+    height: 1440px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background: #f0f2f9;
+    position: relative;
+  }
+
+  /* ── PIXEL DECORATIONS ── */
+  .px-grid {
+    position: absolute;
+    display: grid;
+    pointer-events: none;
+  }
+  .px-c { background: #2323f5; border-radius: 2px; }
+  .px-e { background: transparent; }
+
+  .pg-1 { top: 80px; left: 80px; grid-template-columns: repeat(6,12px); grid-template-rows: repeat(6,12px); gap: 5px; opacity: 0.12; }
+  .pg-2 { bottom: 80px; left: 640px; grid-template-columns: repeat(5,10px); grid-template-rows: repeat(5,10px); gap: 5px; opacity: 0.1; }
+  .pg-3 { top: 80px; right: 80px; grid-template-columns: repeat(4,10px); grid-template-rows: repeat(4,10px); gap: 5px; opacity: 0.13; }
+
+  .px-cross {
+    position: absolute;
+    pointer-events: none;
+  }
+  .px-cross::before, .px-cross::after {
+    content: '';
+    position: absolute;
+    background: #2323f5;
+    border-radius: 2px;
+  }
+  .px-cross::before { width: 8px; height: 28px; top: -12px; left: 0; }
+  .px-cross::after  { width: 28px; height: 8px; top: 0; left: -12px; }
+
+  .px-dot {
+    position: absolute;
+    background: #2323f5;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  /* ── LAYOUT: 3 columns ── */
+  .layout {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* ══ COL 1: HERO ══ */
+  .col-hero {
+    padding: 96px 64px 96px 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 2px solid rgba(35,35,245,0.08);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .brand img {
+    width: 64px; height: 64px;
+    border-radius: 16px;
+    image-rendering: -webkit-optimize-contrast;
+  }
+  .brand-text {
+    font-size: 32px;
+    font-weight: 800;
+    color: #0a0a0a;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase;
+    color: #2323f5; margin-bottom: 28px;
+  }
+  .eyebrow-bar { width: 36px; height: 4px; background: #2323f5; border-radius: 2px; }
+
+  .headline {
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 1.04;
+    letter-spacing: -4px;
+    color: #0a0a0a;
+    margin-bottom: 36px;
+  }
+  .headline .blue { color: #2323f5; }
+
+  .sub {
+    font-size: 26px;
+    color: #555;
+    line-height: 1.55;
+    font-weight: 400;
+    max-width: 620px;
+  }
+
+  .hero-footer {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .pill {
+    background: #2323f5; color: #fff;
+    font-size: 20px; font-weight: 800;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding: 12px 26px; border-radius: 999px;
+  }
+  .pill-ghost {
+    background: #eff1fc; color: #2323f5;
+    font-size: 20px; font-weight: 700;
+    padding: 12px 26px; border-radius: 999px;
+    border: 2.5px solid #c5cdf5;
+  }
+
+  /* ══ COL 2: SECURITY FEATURES ══ */
+  .col-features {
+    padding: 96px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-right: 2px solid rgba(35,35,245,0.08);
+  }
+
+  .section-label {
+    font-size: 20px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #2323f5; margin-bottom: 32px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-label::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: #2323f5;
+    border-radius: 0;
+  }
+
+  .feat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    flex: 1;
+  }
+
+  .feat {
+    background: #fff;
+    border: 2px solid #e4e8f5;
+    border-radius: 18px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .feat-icon {
+    width: 48px; height: 48px;
+    background: #eff1fc;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .feat-icon svg { width: 24px; height: 24px; }
+
+  .feat-title {
+    font-size: 23px; font-weight: 800;
+    color: #0a0a0a; line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  .feat-sub {
+    font-size: 18px; color: #666;
+    line-height: 1.45; font-weight: 400;
+  }
+
+  /* ══ COL 3: HACK CHALLENGE ══ */
+  .col-challenge {
+    padding: 96px 96px 96px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .challenge-card {
+    background: #2323f5;
+    border-radius: 28px;
+    padding: 52px 48px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* pixel grid texture */
+  .challenge-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 2px, transparent 2px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+
+  /* blurred logo watermark */
+  .card-blur-logo {
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 600px; height: 600px;
+    opacity: 0.15;
+    filter: blur(60px) brightness(0) invert(1);
+    pointer-events: none;
+  }
+  .card-blur-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+  /* pixel grids on blue card */
+  .card-px-tl {
+    position: absolute; z-index: 2;
+    top: 40px; right: 44px;
+    display: grid;
+    grid-template-columns: repeat(4,12px);
+    grid-template-rows: repeat(4,12px);
+    gap: 5px; opacity: 0.28;
+  }
+  .card-px-bl {
+    position: absolute; z-index: 2;
+    bottom: 40px; left: 44px;
+    display: grid;
+    grid-template-columns: repeat(3,10px);
+    grid-template-rows: repeat(3,10px);
+    gap: 5px; opacity: 0.22;
+  }
+  .pw { background: #fff; }
+  .pn { background: transparent; }
+
+  .challenge-top { position: relative; z-index: 3; }
+  .challenge-mid { position: relative; z-index: 3; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 40px 0; }
+  .challenge-bot { position: relative; z-index: 3; }
+
+  .ch-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    padding: 10px 22px;
+    color: #fff;
+    font-size: 20px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    width: fit-content;
+  }
+  .ch-badge-dot {
+    width: 10px; height: 10px;
+    background: #fff; border-radius: 0;
+  }
+
+  .ch-title {
+    font-size: 62px; font-weight: 900;
+    color: #fff; line-height: 1.05;
+    letter-spacing: -3px;
+    margin-top: 24px;
+  }
+
+  .ch-item {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.16);
+    border-radius: 14px;
+    padding: 20px 24px;
+    color: #fff;
+    font-size: 22px; line-height: 1.45;
+  }
+  .ch-item strong { font-weight: 800; }
+
+  .ch-cta {
+    background: #fff;
+    color: #2323f5;
+    font-size: 24px; font-weight: 800;
+    padding: 20px 32px;
+    border-radius: 14px;
+    text-align: center;
+    letter-spacing: -0.3px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- PIXEL DECORATIONS LEFT BG -->
+  <div class="px-grid pg-1">
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+  </div>
+
+  <div class="px-grid pg-2">
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+  </div>
+
+  <div class="px-grid pg-3">
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+    <div class="px-c"></div><div class="px-e"></div><div class="px-c"></div><div class="px-e"></div>
+    <div class="px-e"></div><div class="px-c"></div><div class="px-e"></div><div class="px-c"></div>
+  </div>
+
+  <div class="px-cross" style="top:320px;left:820px;opacity:0.18;transform:scale(0.8)"></div>
+  <div class="px-cross" style="top:900px;left:720px;opacity:0.13;transform:scale(0.6)"></div>
+  <div class="px-cross" style="top:200px;left:1680px;opacity:0.15;transform:scale(0.7)"></div>
+  <div class="px-dot" style="width:16px;height:16px;top:480px;left:780px;opacity:0.1;"></div>
+  <div class="px-dot" style="width:12px;height:12px;top:1100px;left:880px;opacity:0.1;"></div>
+  <div class="px-dot" style="width:20px;height:20px;bottom:160px;left:1640px;opacity:0.08;"></div>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- COL 1: HERO -->
+    <div class="col-hero">
+      <div class="brand">
+        <img src="/gitbank-logo.png" alt="Gitbank" />
+        <span class="brand-text">Gitbank</span>
+      </div>
+
+      <div class="hero-body">
+        <div class="eyebrow">
+          <div class="eyebrow-bar"></div>
+          AI Agent Security
+        </div>
+        <div class="headline">
+          The key<br />is not<br />the <span class="blue">lock.</span>
+        </div>
+        <div class="sub">
+          Even if your agent's private key is fully leaked, not a single token can move. Your identity is the only key that matters.
+        </div>
+      </div>
+
+      <div class="hero-footer">
+        <div class="pill">Soul-bound</div>
+        <div class="pill-ghost">Base Mainnet</div>
+      </div>
+    </div>
+
+    <!-- COL 2: FEATURES -->
+    <div class="col-features">
+      <div class="section-label">Why it is unbreakable</div>
+
+      <div class="feat-list">
+
+        <div class="feat">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="4" y="11" width="16" height="11" rx="3" fill="#2323f5"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#2323f5" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <circle cx="12" cy="16.5" r="1.5" fill="#fff"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Private key is useless alone</div>
+            <div class="feat-sub">Every tx needs a live server signature verified against your real GitHub or X account. No identity, no transaction.</div>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6L12 2z" fill="#2323f5"/>
+              <path d="M8.5 12l2.5 2.5 4.5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">No approval exploit</div>
+            <div class="feat-sub">Zero ERC-20 approvals. Soul-bound gitTokens cannot be moved via standard transfer calls. No drain vector exists.</div>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M13 2L4 14h7l-1 8 9-13h-7l2-7z" fill="#2323f5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Quantum resistant by design</div>
+            <div class="feat-sub">Cracking the keypair gives an attacker nothing. The relayer authorization layer requires verified identity, not just a valid signature.</div>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#2323f5" stroke-width="2.2"/>
+              <path d="M12 7v5l3 3" stroke="#2323f5" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">2-step soul-bound transfer</div>
+            <div class="feat-sub">Commit-reveal with block delay. No flash-loan attack, no front-running, no single-tx drain possible.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COL 3: CHALLENGE -->
+    <div class="col-challenge">
+      <div class="challenge-card">
+
+        <!-- pixel grids -->
+        <div class="card-px-tl">
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div><div class="pn"></div>
+          <div class="pn"></div><div class="pw"></div><div class="pn"></div><div class="pw"></div>
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div><div class="pn"></div>
+          <div class="pn"></div><div class="pw"></div><div class="pn"></div><div class="pw"></div>
+        </div>
+        <div class="card-px-bl">
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div>
+          <div class="pn"></div><div class="pw"></div><div class="pn"></div>
+          <div class="pw"></div><div class="pn"></div><div class="pw"></div>
+        </div>
+
+        <!-- blur logo watermark -->
+        <div class="card-blur-logo"><img src="/gitbank-logo.png" alt="" /></div>
+
+        <div class="challenge-top">
+          <div class="ch-badge">
+            <div class="ch-badge-dot"></div>
+            Open Hack Challenge
+          </div>
+          <div class="ch-title">Try to<br />drain it.</div>
+        </div>
+
+        <div class="challenge-mid">
+          <div class="ch-item">
+            We will share a <strong>live private key</strong> controlling a funded vault on Base. Use any method, any tool, any exploit.
+          </div>
+          <div class="ch-item">
+            If you succeed, <strong>everything in the vault is yours.</strong> Keep it.
+          </div>
+          <div class="ch-item">
+            We are confident no one will. Because the vault cannot be drained without your GitHub and X account.
+          </div>
+        </div>
+
+        <div class="challenge-bot">
+          <div class="ch-cta">Challenge drops tomorrow</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

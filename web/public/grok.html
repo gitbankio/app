@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gitbank MCP on Grok</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    color: #0f172a;
+    min-height: 100vh;
+    padding: 64px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.35; }
+  }
+
+  .anim { opacity: 0; }
+  .anim.go { animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+  .video-wrap { opacity: 0; }
+  .video-wrap.go { animation: fadeIn 0.7s ease forwards; }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .logo-img {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    object-fit: contain;
+    background: #fff;
+    padding: 3px;
+  }
+  .logo-img.dark { background: #000; border-color: #333; }
+  .logo-plus { font-size: 18px; color: #cbd5e1; font-weight: 300; }
+
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #dcfce7; border: 1.5px solid #86efac;
+    border-radius: 999px; padding: 4px 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #15803d;
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #22c55e;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  /* ── HERO TEXT ── */
+  .hero { max-width: 680px; text-align: center; margin-bottom: 48px; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #eff6ff; border: 1.5px solid #bfdbfe;
+    border-radius: 999px; padding: 5px 14px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: #2563eb;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: #0f172a;
+    margin-bottom: 16px;
+  }
+  h1 span { color: #2563eb; }
+
+  .sub {
+    font-size: 17px;
+    color: #64748b;
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0 auto 28px;
+  }
+
+  /* ── POINTS ── */
+  .points {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    max-width: 520px;
+    margin: 0 auto 20px;
+  }
+  .point {
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .point-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #2563eb; flex-shrink: 0; margin-top: 6px;
+  }
+  .point-text { font-size: 14px; color: #475569; line-height: 1.5; }
+  .point-text strong { color: #0f172a; font-weight: 600; }
+
+  /* ── CONFIG PILL ── */
+  .config-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: #f1f5f9; border: 1.5px solid #e2e8f0;
+    border-radius: 10px; padding: 10px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px; color: #475569;
+    margin-bottom: 0;
+  }
+  .config-url { color: #2563eb; font-weight: 700; }
+
+  /* ── VIDEO ── */
+  .video-wrap {
+    width: 100%; max-width: 860px;
+    border-radius: 20px; overflow: hidden;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 8px 48px rgba(0,0,0,.1);
+    position: relative;
+    background: #0f172a;
+    margin-bottom: 40px;
+  }
+  .video-wrap video {
+    width: 100%;
+    display: block;
+  }
+  .testing-badge {
+    position: absolute; top: 14px; right: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(254,252,232,0.92); border: 1.5px solid #fde047;
+    backdrop-filter: blur(4px);
+    border-radius: 999px; padding: 5px 12px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #854d0e;
+  }
+  .testing-ring {
+    width: 6px; height: 6px; border-radius: 50%;
+    border: 2px solid #ca8a04;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  /* ── STEPS ── */
+  .steps {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 40px;
+  }
+  .step {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1.5px solid #e2e8f0;
+    border-radius: 999px; padding: 7px 16px;
+  }
+  .step-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #0f172a; color: #fff;
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 13px; color: #475569; font-weight: 500; }
+
+  /* ── FOOTER NOTE ── */
+  .footer-note {
+    font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.6;
+  }
+  .footer-note a { color: #2563eb; text-decoration: none; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- HEADER (delay 0) -->
+<div class="header anim" style="--d:0s">
+  <img class="logo-img" src="/logo-gitbank.png" alt="Gitbank"/>
+  <span class="logo-plus">+</span>
+  <img class="logo-img dark" src="/logos/grok.png" alt="Grok"/>
+  <span class="live-badge"><span class="live-dot"></span>Live</span>
+</div>
+
+<!-- HERO (delay 0.1s) -->
+<div class="hero">
+  <div class="tag anim" style="--d:0.1s">MCP Connector</div>
+  <h1 class="anim" style="--d:0.18s">Gitbank on <span>Grok</span></h1>
+  <p class="sub anim" style="--d:0.26s">
+    Connect your on-chain vault to Grok in 4 steps. Read live balances, check project budgets, and queue transactions, all from a conversation.
+  </p>
+
+  <div class="points anim" style="--d:0.34s">
+    <div class="point">
+      <span class="point-dot"></span>
+      <p class="point-text"><strong>Read vault balance</strong>: USDC and WETH on Base Mainnet, live from any Grok conversation</p>
+    </div>
+    <div class="point">
+      <span class="point-dot"></span>
+      <p class="point-text"><strong>Pull transaction history</strong>: deposits, withdrawals, swaps, and bounty payouts with Basescan links</p>
+    </div>
+    <div class="point">
+      <span class="point-dot"></span>
+      <p class="point-text"><strong>Queue writes</strong>: every deposit, swap, or bounty requires your signed GitHub comment to execute</p>
+    </div>
+    <div class="point">
+      <span class="point-dot"></span>
+      <p class="point-text"><strong>Zero private keys</strong>: soul-bound vault anchored to your permanent GitHub user ID</p>
+    </div>
+  </div>
+
+  <div class="config-pill anim" style="--d:0.42s">
+    URL: <span class="config-url">https://gitbank.io/api/mcp</span>
+  </div>
+</div>
+
+<!-- VIDEO (delay 1.3s) -->
+<div class="video-wrap" id="videoBlock">
+  <video id="demoVideo" muted loop playsinline preload="auto">
+    <source src="/grok-demo.mp4" type="video/mp4"/>
+    <source src="/grok-demo.mov" type="video/quicktime"/>
+  </video>
+  <div class="testing-badge">
+    <span class="testing-ring"></span>
+    Team Testing
+  </div>
+</div>
+
+<!-- STEPS (delay 1.5s) -->
+<div class="steps anim" id="stepsBlock" style="--d:0s; opacity:0;">
+  <div class="step">
+    <div class="step-num">1</div>
+    <span class="step-text">Open grok.com/connectors</span>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <span class="step-text">New Connector, then Custom</span>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <span class="step-text">Paste the URL above</span>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <span class="step-text">Save and start chatting</span>
+  </div>
+</div>
+
+<p class="footer-note anim" id="footerNote" style="--d:0s; opacity:0;">
+  Requires Grok paid plan. Full setup guide at <a href="/mcp/grok">gitbank.io/mcp/grok</a>
+</p>
+
+<script>
+  // Trigger text animations on load
+  document.querySelectorAll('.anim[style*="--d"]').forEach(el => {
+    const delay = el.style.getPropertyValue('--d') || '0s';
+    const ms = parseFloat(delay) * 1000;
+    setTimeout(() => el.classList.add('go'), ms);
+  });
+
+  // Video + steps appear at 1.3s
+  setTimeout(() => {
+    const vb = document.getElementById('videoBlock');
+    const sb = document.getElementById('stepsBlock');
+    const fn = document.getElementById('footerNote');
+
+    vb.classList.add('go');
+
+    const vid = document.getElementById('demoVideo');
+    vid.play().catch(() => {});
+
+    setTimeout(() => {
+      sb.style.animation = 'fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards';
+      fn.style.animation = 'fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.08s forwards';
+    }, 300);
+  }, 1300);
+</script>
+
+</body>
+</html>

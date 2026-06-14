@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=2560" />
+<title>Gitbank X</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 2560px;
+    height: 1440px;
+    overflow: hidden;
+    background: #e8edf7;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    position: relative;
+  }
+
+  /* ── PIXEL DECORATIONS (2x scale) ── */
+  .px-block {
+    position: absolute;
+    display: grid;
+    opacity: 0.16;
+  }
+  .px-cell { background: #2323f5; border-radius: 2px; }
+  .px-empty { background: transparent; }
+
+  /* top-right of left zone */
+  .pb1 {
+    top: 96px; right: 840px;
+    grid-template-columns: repeat(5, 14px);
+    grid-template-rows: repeat(5, 14px);
+    gap: 6px;
+  }
+  /* bottom-left */
+  .pb2 {
+    bottom: 120px; left: 96px;
+    grid-template-columns: repeat(4, 12px);
+    grid-template-rows: repeat(4, 12px);
+    gap: 6px;
+  }
+
+  .px-cross {
+    position: absolute;
+  }
+  .px-cross::before, .px-cross::after {
+    content: '';
+    position: absolute;
+    background: #2323f5;
+    opacity: 0.22;
+    border-radius: 1px;
+  }
+  .px-cross::before { width: 6px; height: 22px; top: -8px; left: 0; }
+  .px-cross::after  { width: 22px; height: 6px; top: 0; left: -8px; }
+
+  .px-dot {
+    position: absolute;
+    background: #2323f5;
+    border-radius: 2px;
+    opacity: 0.1;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    position: absolute;
+    inset: 0;
+    display: flex;
+  }
+
+  /* ══ LEFT ══ */
+  .left {
+    width: 58%;
+    padding: 96px 0 96px 128px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 96px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .brand img {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    image-rendering: -webkit-optimize-contrast;
+  }
+  .brand-name {
+    font-size: 36px;
+    font-weight: 800;
+    color: #0a0a0a;
+    letter-spacing: -0.5px;
+  }
+
+  .badge {
+    background: #2323f5;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 14px 30px;
+    border-radius: 999px;
+  }
+
+  /* HEADLINE SECTION */
+  .headline-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 16px;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #2323f5;
+    margin-bottom: 32px;
+  }
+  .eyebrow-line {
+    width: 40px;
+    height: 4px;
+    background: #2323f5;
+    border-radius: 2px;
+  }
+
+  .headline {
+    font-size: 104px;
+    font-weight: 900;
+    line-height: 1.03;
+    color: #0a0a0a;
+    letter-spacing: -5px;
+    margin-bottom: 48px;
+  }
+  .headline .hl-blue { color: #2323f5; }
+
+  .tagline {
+    font-size: 28px;
+    color: #555;
+    line-height: 1.55;
+    max-width: 840px;
+    margin-bottom: 56px;
+    font-weight: 400;
+  }
+
+  /* COMMANDS */
+  .commands {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 64px;
+  }
+
+  .cmd {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 700;
+    padding: 14px 30px;
+    border-radius: 12px;
+    border: 3px solid #cdd5ee;
+    background: #fff;
+    color: #2323f5;
+    letter-spacing: 0.3px;
+  }
+
+  .cmd-dot {
+    width: 10px;
+    height: 10px;
+    background: #2323f5;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-right: 96px;
+  }
+  .footer-text {
+    font-size: 24px;
+    color: #888;
+    font-weight: 400;
+  }
+  .footer-text strong { color: #2323f5; font-weight: 700; }
+  .foot-sep {
+    width: 6px; height: 6px;
+    background: #ccc;
+    border-radius: 0;
+  }
+  .soul-badge {
+    background: #eff1fc;
+    color: #2323f5;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 3px solid #c5cdf5;
+  }
+
+  /* ══ RIGHT ══ */
+  .right {
+    width: 42%;
+    position: relative;
+  }
+
+  .right-bg {
+    position: absolute;
+    inset: 48px 48px 48px 0;
+    background: #2323f5;
+    border-radius: 40px;
+    overflow: hidden;
+  }
+
+  /* pixel grid texture */
+  .right-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.055) 2px, transparent 2px),
+      linear-gradient(90deg, rgba(255,255,255,0.055) 2px, transparent 2px);
+    background-size: 32px 32px;
+  }
+
+  /* pixel dot grids on blue */
+  .px-right-tl {
+    position: absolute; z-index: 3;
+    top: 72px; right: 96px;
+    display: grid;
+    grid-template-columns: repeat(4, 16px);
+    grid-template-rows: repeat(4, 16px);
+    gap: 6px;
+    opacity: 0.3;
+  }
+  .px-right-br {
+    position: absolute; z-index: 3;
+    bottom: 72px; right: 96px;
+    display: grid;
+    grid-template-columns: repeat(3, 12px);
+    grid-template-rows: repeat(3, 12px);
+    gap: 6px;
+    opacity: 0.25;
+  }
+  .px-w { background: rgba(255,255,255,1); }
+  .px-n { background: transparent; }
+
+  /* FEATURE LIST */
+  .feature-list {
+    position: absolute;
+    z-index: 2;
+    top: 88px;
+    left: 24px;
+    right: 88px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .feat {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.17);
+    border-radius: 20px;
+    padding: 24px 32px;
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    color: #fff;
+  }
+
+  .feat-icon {
+    width: 56px;
+    height: 56px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .feat-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .feat-title {
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .feat-sub {
+    font-size: 20px;
+    opacity: 0.62;
+    line-height: 1.45;
+    font-weight: 400;
+  }
+
+  /* Blurred logo watermark on right */
+  .logo-blur {
+    position: absolute;
+    z-index: 1;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    opacity: 0.38;
+    filter: blur(52px) brightness(0) invert(1);
+    pointer-events: none;
+  }
+  .logo-blur img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ── LEFT BG PIXEL DECORATIONS ── -->
+  <div class="px-block pb1">
+    <div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div>
+    <div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div>
+    <div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div>
+    <div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div>
+    <div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div>
+  </div>
+
+  <div class="px-block pb2">
+    <div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div>
+    <div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div>
+    <div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div>
+    <div class="px-empty"></div><div class="px-cell"></div><div class="px-empty"></div><div class="px-cell"></div>
+  </div>
+
+  <!-- pixel crosses -->
+  <div class="px-cross" style="top:264px;left:1080px;"></div>
+  <div class="px-cross" style="top:176px;left:920px;transform:scale(0.7);"></div>
+  <div class="px-cross" style="top:800px;left:1040px;transform:scale(0.6);"></div>
+  <div class="px-cross" style="bottom:200px;left:760px;transform:scale(0.5);"></div>
+
+  <!-- floating pixel squares -->
+  <div class="px-dot" style="width:20px;height:20px;top:176px;left:880px;"></div>
+  <div class="px-dot" style="width:14px;height:14px;top:560px;left:1020px;"></div>
+  <div class="px-dot" style="width:18px;height:18px;bottom:280px;left:1040px;"></div>
+  <div class="px-dot" style="width:10px;height:10px;top:1000px;left:700px;"></div>
+
+  <!-- ── MAIN LAYOUT ── -->
+  <div class="layout">
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <div class="topbar">
+        <div class="brand">
+          <img src="/gitbank-logo.png" alt="Gitbank" />
+          <span class="brand-name">Gitbank X</span>
+        </div>
+        <div class="badge">Base Mainnet Live</div>
+      </div>
+
+      <div class="headline-wrap">
+        <div class="eyebrow">
+          <div class="eyebrow-line"></div>
+          Now live on X
+        </div>
+        <div class="headline">
+          Manage your<br />
+          Web3 vault<br />
+          directly from <span class="hl-blue">𝕏</span>
+        </div>
+        <div class="tagline">
+          Deposit, withdraw, swap, and launch tokens by replying to @gitbankbot.<br />
+          No app. No wallet. No gas.
+        </div>
+        <div class="commands">
+          <span class="cmd"><span class="cmd-dot"></span>deposit</span>
+          <span class="cmd"><span class="cmd-dot"></span>withdraw</span>
+          <span class="cmd"><span class="cmd-dot"></span>swap</span>
+          <span class="cmd"><span class="cmd-dot"></span>send</span>
+          <span class="cmd"><span class="cmd-dot"></span>balance</span>
+          <span class="cmd"><span class="cmd-dot"></span>launch</span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="footer-text">Reply to <strong>@gitbankbot</strong> to get started</span>
+        <div class="foot-sep"></div>
+        <span class="soul-badge">Soul-bound</span>
+        <div class="foot-sep"></div>
+        <span class="footer-text">Relayer pays all gas</span>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+      <div class="right-bg"></div>
+
+      <!-- Feature list -->
+      <div class="feature-list">
+
+        <div class="feat">
+          <div class="feat-icon">
+            <!-- Padlock SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="11" width="16" height="11" rx="3" fill="white"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+              <circle cx="12" cy="16.5" r="1.5" fill="#2323f5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Soul-bound gitTokens</div>
+            <div class="feat-sub">Non-transferable positions locked to your GitHub and X identity on-chain. Cannot be phished or drained.</div>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon">
+            <!-- Shield SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L4 6v6c0 5.25 3.5 9.74 8 11 4.5-1.26 8-5.75 8-11V6L12 2z" fill="white"/>
+              <path d="M8.5 12l2.5 2.5 4.5-5" stroke="#2323f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">No approval exploit. No drain attack.</div>
+            <div class="feat-sub">Zero ERC-20 approvals. Assets move only with your on-chain signature. No hot wallet, ever.</div>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon">
+            <!-- Lightning bolt SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2L4 14h7l-1 8 9-13h-7l2-7z" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Zero gas for users</div>
+            <div class="feat-sub">Gitbank Relayer signs and submits every tx on Base. You reply to a tweet, we pay the gas.</div>
+          </div>
+        </div>
+
+        <div class="feat">
+          <div class="feat-icon">
+            <!-- Star / launch SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C7 7 5 12 5 16a7 7 0 0 0 14 0c0-4-2-9-7-14z" fill="white"/>
+              <ellipse cx="8.5" cy="16.5" rx="2" ry="3" fill="white" transform="rotate(-30 8.5 16.5)"/>
+              <ellipse cx="15.5" cy="16.5" rx="2" ry="3" fill="white" transform="rotate(30 15.5 16.5)"/>
+              <circle cx="12" cy="10" r="2" fill="#2323f5"/>
+            </svg>
+          </div>
+          <div>
+            <div class="feat-title">Launch tokens, earn WETH</div>
+            <div class="feat-sub">Deploy tokens via Clanker from X. Creator LP fees auto-shield into gitWETH in your vault.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pixel grids on blue panel -->
+      <div class="px-right-tl">
+        <div class="px-w"></div><div class="px-n"></div><div class="px-w"></div><div class="px-n"></div>
+        <div class="px-n"></div><div class="px-w"></div><div class="px-n"></div><div class="px-w"></div>
+        <div class="px-w"></div><div class="px-n"></div><div class="px-w"></div><div class="px-n"></div>
+        <div class="px-n"></div><div class="px-w"></div><div class="px-n"></div><div class="px-w"></div>
+      </div>
+
+      <div class="px-right-br">
+        <div class="px-w"></div><div class="px-n"></div><div class="px-w"></div>
+        <div class="px-n"></div><div class="px-w"></div><div class="px-n"></div>
+        <div class="px-w"></div><div class="px-n"></div><div class="px-w"></div>
+      </div>
+
+      <!-- Blurred logo watermark -->
+      <div class="logo-blur">
+        <img src="/gitbank-logo.png" alt="" />
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
